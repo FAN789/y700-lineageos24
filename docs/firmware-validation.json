@@ -1,0 +1,112 @@
+{
+  "checks": [
+    {
+      "name": "lineage-24.0-20261014-UNOFFICIAL-asphalt.zip",
+      "bytes": 1136288777,
+      "sha256": "69318c52dd53dbcfb9373242c16e63ab961b87c7b89164f9a25e050333d4b6b5"
+    },
+    {
+      "name": "boot.img",
+      "bytes": 100663296,
+      "sha256": "0c79e555987d6f6c2209a559d092aeb3952aaf0dc0a6ab49c0edebc2d7cdb8ed"
+    },
+    {
+      "name": "vendor_boot.img",
+      "bytes": 100663296,
+      "sha256": "dc061dd1a6ff0273c39f77991598b2ddc135312202a9d6c43b3290f6c96aa5a4"
+    },
+    {
+      "name": "dtbo.img",
+      "bytes": 24117248,
+      "sha256": "a2f1f40365da94bc1c5c95fc7bf109e0b287dcd76a7d68068f7cc0b8a5b4e63a"
+    },
+    {
+      "name": "recovery.img",
+      "bytes": 104857600,
+      "sha256": "2994662d2e380958ade2ea30c0b9f0c6e8fe8ab4ccb613dcef5a296ed4826703"
+    },
+    {
+      "name": "vbmeta.img",
+      "bytes": 8192,
+      "sha256": "65f7d8f4bd2614b80d5b451abb50e80f7a41d170597efecec7a1bcbbced65f6c"
+    },
+    {
+      "name": "vbmeta_system.img",
+      "bytes": 4096,
+      "sha256": "165fad9c332c6833d58fc3938f9f20d4e941ed38b5c61660809cf4bdbb6fae21"
+    }
+  ],
+  "zip_crc": "passed",
+  "userdata_entries": false,
+  "unmodified_build_ota": true,
+  "metadata": "ota-property-files=payload_metadata.bin:4935:125482,payload.bin:4935:1136280348,payload_properties.txt:1136285341:156,apex_info.pb:2367:1372,care_map.pb:3786:1102,metadata:69:721,metadata.pb:858:1461                        \nota-required-cache=0\nota-streaming-property-files=payload.bin:4935:1136280348,payload_properties.txt:1136285341:156,apex_info.pb:2367:1372,care_map.pb:3786:1102,metadata:69:721,metadata.pb:858:1461                          \nota-type=AB\npost-build=Lenovo/TB320FC/TB320FC:15/AQ3A.240812.002/ZUI_17.0.339_251219_ROW:user/release-keys\npost-build-incremental=1791947628\npost-sdk-level=37\npost-security-patch-level=2026-10-01\npost-timestamp=1791947628\npre-device=asphalt,asphalt_prc,asphalt_nec,TB320FC\n",
+  "partitions": [
+    {
+      "name": "boot",
+      "bytes": 100663296,
+      "sha256": "0c79e555987d6f6c2209a559d092aeb3952aaf0dc0a6ab49c0edebc2d7cdb8ed"
+    },
+    {
+      "name": "dtbo",
+      "bytes": 24117248,
+      "sha256": "a2f1f40365da94bc1c5c95fc7bf109e0b287dcd76a7d68068f7cc0b8a5b4e63a"
+    },
+    {
+      "name": "odm",
+      "bytes": 2060288,
+      "sha256": "b2817134ed23d5d8f2935840b76c12228d5136670bfc539fb0cbb3109719ed41"
+    },
+    {
+      "name": "product",
+      "bytes": 1692590080,
+      "sha256": "51d7e69bed008e10fd15b8a62fea5e07d86f9d5784956ab82c81bde4481a11c6"
+    },
+    {
+      "name": "recovery",
+      "bytes": 104857600,
+      "sha256": "2994662d2e380958ade2ea30c0b9f0c6e8fe8ab4ccb613dcef5a296ed4826703"
+    },
+    {
+      "name": "system",
+      "bytes": 1158959104,
+      "sha256": "171c3fbb36668c946a96505b880b671e825e971b623e2b4f4b5f70488c2d1f3e"
+    },
+    {
+      "name": "system_ext",
+      "bytes": 580550656,
+      "sha256": "c8bc5e84c0b0ebf6b2f69fe2e9e74c89b6899336a9424695ac83a38f7d509038"
+    },
+    {
+      "name": "vbmeta",
+      "bytes": 8192,
+      "sha256": "65f7d8f4bd2614b80d5b451abb50e80f7a41d170597efecec7a1bcbbced65f6c"
+    },
+    {
+      "name": "vbmeta_system",
+      "bytes": 4096,
+      "sha256": "165fad9c332c6833d58fc3938f9f20d4e941ed38b5c61660809cf4bdbb6fae21"
+    },
+    {
+      "name": "vendor",
+      "bytes": 772780032,
+      "sha256": "4e8b26c05e0ac08234224fed1ee98469c968f82f9f8b306f44d68890295fdc50"
+    },
+    {
+      "name": "vendor_boot",
+      "bytes": 100663296,
+      "sha256": "dc061dd1a6ff0273c39f77991598b2ddc135312202a9d6c43b3290f6c96aa5a4"
+    },
+    {
+      "name": "vendor_dlkm",
+      "bytes": 74403840,
+      "sha256": "ad5aff9f5fddda3d48974dc6d3edd5e028a94e9f70c3aba8e83916b317457ac6"
+    }
+  ],
+  "security": {
+    "avb_flags": "--flags 3 --padding_size 4096",
+    "certificate": "build/make/target/product/security/testkey",
+    "vintf_enforce": true,
+    "build_type": "userdebug",
+    "warning": "Upstream test keys and AVB flags3; ROW fingerprint inherited; PRC compatibility requires device testing"
+  }
+}

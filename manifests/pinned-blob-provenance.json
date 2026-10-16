@@ -1,0 +1,392 @@
+{
+  "repository": "lenovo-basements/proprietary_vendor_lenovo_asphalt",
+  "commit": "c325bce3a34d0d0cb8d89fdaede290d094062172",
+  "files": [
+    {
+      "path": "vendor/lib64/libgame_enhance.so",
+      "sha1": "4432e47d990e98edb141becc345a92d03df26bf4",
+      "declared_pins": [
+        "4432e47d990e98edb141becc345a92d03df26bf4"
+      ],
+      "download_url": null
+    },
+    {
+      "path": "vendor/lib64/libhdr_backlight_adapter.so",
+      "sha1": "57036c19938fe40e73e9b9e3d4c6a6073d7aa858",
+      "declared_pins": [
+        "57036c19938fe40e73e9b9e3d4c6a6073d7aa858"
+      ],
+      "download_url": null
+    },
+    {
+      "path": "vendor/lib64/libhdr_tm.so",
+      "sha1": "6f18ddbd3f66f4348a5b92a2ac0bafd979ed2a05",
+      "declared_pins": [
+        "6f18ddbd3f66f4348a5b92a2ac0bafd979ed2a05"
+      ],
+      "download_url": null
+    },
+    {
+      "path": "vendor/bin/qdcmss",
+      "sha1": "727147cbaf4d74f0eb38c534fda9beebdfec31f6",
+      "declared_pins": [
+        "727147cbaf4d74f0eb38c534fda9beebdfec31f6"
+      ],
+      "download_url": null
+    },
+    {
+      "path": "vendor/etc/init/qdcmss.rc",
+      "sha1": "53d78d686678c4f923a9ec4ace7d4d3575b13788",
+      "declared_pins": [
+        "53d78d686678c4f923a9ec4ace7d4d3575b13788"
+      ],
+      "download_url": null
+    },
+    {
+      "path": "vendor/lib64/libbacklight-calib.so",
+      "sha1": "a5990fa87932196f9e2c38b2ec85786daa6b3a9c",
+      "declared_pins": [
+        "a5990fa87932196f9e2c38b2ec85786daa6b3a9c"
+      ],
+      "download_url": null
+    },
+    {
+      "path": "vendor/lib64/libdigital-dimming.so",
+      "sha1": "66506a386dc80da0994c9d4aeac34edfc1830c5c",
+      "declared_pins": [
+        "66506a386dc80da0994c9d4aeac34edfc1830c5c"
+      ],
+      "download_url": null
+    },
+    {
+      "path": "vendor/lib64/libdpps.so",
+      "sha1": "5d3e5f10ce5adff610e67acd837b19a551412876",
+      "declared_pins": [
+        "d8e9cc561a3ab706697880975413db23bb41640c",
+        "5d3e5f10ce5adff610e67acd837b19a551412876"
+      ],
+      "download_url": "https://raw.githubusercontent.com/lenovo-basements/proprietary_vendor_lenovo_asphalt/c325bce3a34d0d0cb8d89fdaede290d094062172/proprietary/vendor/lib64/libdpps.so"
+    },
+    {
+      "path": "vendor/lib64/libmemutils.so",
+      "sha1": "e122c3ff95b10a6263e698261abafe62cee98010",
+      "declared_pins": [
+        "e122c3ff95b10a6263e698261abafe62cee98010"
+      ],
+      "download_url": "https://raw.githubusercontent.com/lenovo-basements/proprietary_vendor_lenovo_asphalt/c325bce3a34d0d0cb8d89fdaede290d094062172/proprietary/vendor/lib64/libmemutils.so"
+    },
+    {
+      "path": "vendor/lib64/libqdcm-algo.so",
+      "sha1": "e873dc21878d92d20f6937453c9d3265a0d3a93d",
+      "declared_pins": [
+        "e873dc21878d92d20f6937453c9d3265a0d3a93d"
+      ],
+      "download_url": "https://raw.githubusercontent.com/lenovo-basements/proprietary_vendor_lenovo_asphalt/c325bce3a34d0d0cb8d89fdaede290d094062172/proprietary/vendor/lib64/libqdcm-algo.so"
+    },
+    {
+      "path": "vendor/lib64/libqdcm-json-mode-parser.so",
+      "sha1": "1c8f1a841a877efbed0a0b3db3d551ff1283f14f",
+      "declared_pins": [
+        "1c8f1a841a877efbed0a0b3db3d551ff1283f14f"
+      ],
+      "download_url": "https://raw.githubusercontent.com/lenovo-basements/proprietary_vendor_lenovo_asphalt/c325bce3a34d0d0cb8d89fdaede290d094062172/proprietary/vendor/lib64/libqdcm-json-mode-parser.so"
+    },
+    {
+      "path": "vendor/lib64/libqdcm-mode-parser.so",
+      "sha1": "341178dfb18e03b6fabff27a080fb96f15188942",
+      "declared_pins": [
+        "341178dfb18e03b6fabff27a080fb96f15188942"
+      ],
+      "download_url": "https://raw.githubusercontent.com/lenovo-basements/proprietary_vendor_lenovo_asphalt/c325bce3a34d0d0cb8d89fdaede290d094062172/proprietary/vendor/lib64/libqdcm-mode-parser.so"
+    },
+    {
+      "path": "vendor/lib64/libsnapdragoncolor-manager.so",
+      "sha1": "ba9a38c02dae4cc2211895714969c589faaff1f4",
+      "declared_pins": [
+        "72291478bd56bada0fc3df3617e765b28ef54f66",
+        "ba9a38c02dae4cc2211895714969c589faaff1f4"
+      ],
+      "download_url": "https://raw.githubusercontent.com/lenovo-basements/proprietary_vendor_lenovo_asphalt/c325bce3a34d0d0cb8d89fdaede290d094062172/proprietary/vendor/lib64/libsnapdragoncolor-manager.so"
+    },
+    {
+      "path": "vendor/lib64/libsnapdragoncolor-qdcm.so",
+      "sha1": "9f0bc72290618324e95cd9f4eca6987a6733bd06",
+      "declared_pins": [
+        "9f0bc72290618324e95cd9f4eca6987a6733bd06"
+      ],
+      "download_url": "https://raw.githubusercontent.com/lenovo-basements/proprietary_vendor_lenovo_asphalt/c325bce3a34d0d0cb8d89fdaede290d094062172/proprietary/vendor/lib64/libsnapdragoncolor-qdcm.so"
+    },
+    {
+      "path": "vendor/etc/display/DPU660.xml",
+      "sha1": "b26dd73e361546d89bf3d7082a471703dc6ac2cb",
+      "declared_pins": [
+        "b26dd73e361546d89bf3d7082a471703dc6ac2cb"
+      ],
+      "download_url": null
+    },
+    {
+      "path": "vendor/etc/display/DPU670.xml",
+      "sha1": "e5131a60ceff29ca5eb561eec7eddadef1d0486f",
+      "declared_pins": [
+        "e5131a60ceff29ca5eb561eec7eddadef1d0486f"
+      ],
+      "download_url": null
+    },
+    {
+      "path": "vendor/etc/display/DPU720.xml",
+      "sha1": "4e54e8712d65773eb87867bf64a4cb98ea9bb8c3",
+      "declared_pins": [
+        "4e54e8712d65773eb87867bf64a4cb98ea9bb8c3"
+      ],
+      "download_url": null
+    },
+    {
+      "path": "vendor/etc/display/DPU7__.xml",
+      "sha1": "c056f3cb9fa123ca3de5b2a9775c184dddf25b9d",
+      "declared_pins": [
+        "c056f3cb9fa123ca3de5b2a9775c184dddf25b9d"
+      ],
+      "download_url": null
+    },
+    {
+      "path": "vendor/etc/display/DPU820.xml",
+      "sha1": "35afcb7834d13eacc8f14d2ff4ac5132bb01a563",
+      "declared_pins": [
+        "35afcb7834d13eacc8f14d2ff4ac5132bb01a563"
+      ],
+      "download_url": null
+    },
+    {
+      "path": "vendor/etc/display/DPU830.xml",
+      "sha1": "dcedb842003ec2242a57b545d6695bd5899b5dbb",
+      "declared_pins": [
+        "dcedb842003ec2242a57b545d6695bd5899b5dbb"
+      ],
+      "download_url": null
+    },
+    {
+      "path": "vendor/etc/display/DPU860.xml",
+      "sha1": "22ba44c290e2f23992df4da959945349944d5208",
+      "declared_pins": [
+        "22ba44c290e2f23992df4da959945349944d5208"
+      ],
+      "download_url": null
+    },
+    {
+      "path": "vendor/etc/display/DPU8__.xml",
+      "sha1": "2360038d60e9dff36d7f14a59a25da74bac1abe4",
+      "declared_pins": [
+        "2360038d60e9dff36d7f14a59a25da74bac1abe4"
+      ],
+      "download_url": null
+    },
+    {
+      "path": "vendor/etc/display/DPU9__.xml",
+      "sha1": "ed8ec4a7a6852d8340bd98448db9f13634083edd",
+      "declared_pins": [
+        "ed8ec4a7a6852d8340bd98448db9f13634083edd"
+      ],
+      "download_url": null
+    },
+    {
+      "path": "vendor/etc/display/advanced_sf_offsets.xml",
+      "sha1": "29b6b0554d6393a8be90f52fce010946abd38d52",
+      "declared_pins": [
+        "29b6b0554d6393a8be90f52fce010946abd38d52"
+      ],
+      "download_url": null
+    },
+    {
+      "path": "vendor/etc/display/thermallevel_to_fps.xml",
+      "sha1": "bc38035c8f41308fc25cc30969fbbf16ab86c43f",
+      "declared_pins": [
+        "bc38035c8f41308fc25cc30969fbbf16ab86c43f"
+      ],
+      "download_url": null
+    },
+    {
+      "path": "vendor/lib64/libdisplayqos.so",
+      "sha1": "f5620aafca45f8f5c89e5af5d808bd20602a4654",
+      "declared_pins": [
+        "f5620aafca45f8f5c89e5af5d808bd20602a4654"
+      ],
+      "download_url": "https://raw.githubusercontent.com/lenovo-basements/proprietary_vendor_lenovo_asphalt/c325bce3a34d0d0cb8d89fdaede290d094062172/proprietary/vendor/lib64/libdisplayqos.so"
+    },
+    {
+      "path": "vendor/lib64/libdisplayskuutils.so",
+      "sha1": "405e2456d79c8e0118efb9ade2d8a8d82565af5c",
+      "declared_pins": [
+        "405e2456d79c8e0118efb9ade2d8a8d82565af5c"
+      ],
+      "download_url": "https://raw.githubusercontent.com/lenovo-basements/proprietary_vendor_lenovo_asphalt/c325bce3a34d0d0cb8d89fdaede290d094062172/proprietary/vendor/lib64/libdisplayskuutils.so"
+    },
+    {
+      "path": "vendor/lib64/libqseed3.so",
+      "sha1": "6fcc4cb419053b57fc14d7cb2e3fdb18901cc87e",
+      "declared_pins": [
+        "6fcc4cb419053b57fc14d7cb2e3fdb18901cc87e"
+      ],
+      "download_url": "https://raw.githubusercontent.com/lenovo-basements/proprietary_vendor_lenovo_asphalt/c325bce3a34d0d0cb8d89fdaede290d094062172/proprietary/vendor/lib64/libqseed3.so"
+    },
+    {
+      "path": "vendor/lib64/librcmask.so",
+      "sha1": "36919cfe71e1e6ab4e507f98dab320b7046d24c4",
+      "declared_pins": [
+        "36919cfe71e1e6ab4e507f98dab320b7046d24c4"
+      ],
+      "download_url": null
+    },
+    {
+      "path": "vendor/lib64/libsdm-color.so",
+      "sha1": "3ffdac82ec83cfcf0cfab32718a08500ec73e36d",
+      "declared_pins": [
+        "3ffdac82ec83cfcf0cfab32718a08500ec73e36d"
+      ],
+      "download_url": "https://raw.githubusercontent.com/lenovo-basements/proprietary_vendor_lenovo_asphalt/c325bce3a34d0d0cb8d89fdaede290d094062172/proprietary/vendor/lib64/libsdm-color.so"
+    },
+    {
+      "path": "vendor/lib64/libsdm-colormgr-algo.so",
+      "sha1": "0c922b88dc8f11a9c8dbe78daec337d4d5333087",
+      "declared_pins": [
+        "0c922b88dc8f11a9c8dbe78daec337d4d5333087"
+      ],
+      "download_url": "https://raw.githubusercontent.com/lenovo-basements/proprietary_vendor_lenovo_asphalt/c325bce3a34d0d0cb8d89fdaede290d094062172/proprietary/vendor/lib64/libsdm-colormgr-algo.so"
+    },
+    {
+      "path": "vendor/lib64/libsdm-disp-vndapis.so",
+      "sha1": "169adaa522f75d622e76a1597c486eff4551c5a3",
+      "declared_pins": [
+        "169adaa522f75d622e76a1597c486eff4551c5a3"
+      ],
+      "download_url": "https://raw.githubusercontent.com/lenovo-basements/proprietary_vendor_lenovo_asphalt/c325bce3a34d0d0cb8d89fdaede290d094062172/proprietary/vendor/lib64/libsdm-disp-vndapis.so"
+    },
+    {
+      "path": "vendor/lib64/libsdmextension.so",
+      "sha1": "08d321d3e0da2231a29e3ec92604dca48c8895e3",
+      "declared_pins": [
+        "08d321d3e0da2231a29e3ec92604dca48c8895e3"
+      ],
+      "download_url": "https://raw.githubusercontent.com/lenovo-basements/proprietary_vendor_lenovo_asphalt/c325bce3a34d0d0cb8d89fdaede290d094062172/proprietary/vendor/lib64/libsdmextension.so"
+    },
+    {
+      "path": "vendor/lib64/libtestutils.so",
+      "sha1": "61b98f252afde4eb7c674de870e7afb590c9bb2a",
+      "declared_pins": [
+        "61b98f252afde4eb7c674de870e7afb590c9bb2a"
+      ],
+      "download_url": null
+    },
+    {
+      "path": "vendor/lib64/libtinyxml2_1.so",
+      "sha1": "ae0c9190fd54c18a6c28dfccdfd29655abcb08de",
+      "declared_pins": [
+        "ae0c9190fd54c18a6c28dfccdfd29655abcb08de"
+      ],
+      "download_url": null
+    },
+    {
+      "path": "vendor/bin/hw/vendor.display.color@1.0-service",
+      "sha1": "9f37be517ad778857bfe94b78ba3fbf2e90e3967",
+      "declared_pins": [
+        "9f37be517ad778857bfe94b78ba3fbf2e90e3967"
+      ],
+      "download_url": "https://raw.githubusercontent.com/lenovo-basements/proprietary_vendor_lenovo_asphalt/c325bce3a34d0d0cb8d89fdaede290d094062172/proprietary/vendor/bin/hw/vendor.display.color@1.0-service"
+    },
+    {
+      "path": "vendor/bin/ppd",
+      "sha1": "37202ce410bb2bfd42133cd03cd3fd7ce9a063d8",
+      "declared_pins": [
+        "37202ce410bb2bfd42133cd03cd3fd7ce9a063d8"
+      ],
+      "download_url": "https://raw.githubusercontent.com/lenovo-basements/proprietary_vendor_lenovo_asphalt/c325bce3a34d0d0cb8d89fdaede290d094062172/proprietary/vendor/bin/ppd"
+    },
+    {
+      "path": "vendor/etc/init/vendor.display.color@1.0-service.rc",
+      "sha1": "fc58968025ec9f09b4fedee0b9daecc6a56c8373",
+      "declared_pins": [
+        "fc58968025ec9f09b4fedee0b9daecc6a56c8373"
+      ],
+      "download_url": "https://raw.githubusercontent.com/lenovo-basements/proprietary_vendor_lenovo_asphalt/c325bce3a34d0d0cb8d89fdaede290d094062172/proprietary/vendor/etc/init/vendor.display.color@1.0-service.rc"
+    },
+    {
+      "path": "vendor/lib64/libdisp-aba.so",
+      "sha1": "f77d25d1e56378d6b3ec6f4d671113e45fbeba7e",
+      "declared_pins": [
+        "f77d25d1e56378d6b3ec6f4d671113e45fbeba7e"
+      ],
+      "download_url": "https://raw.githubusercontent.com/lenovo-basements/proprietary_vendor_lenovo_asphalt/c325bce3a34d0d0cb8d89fdaede290d094062172/proprietary/vendor/lib64/libdisp-aba.so"
+    },
+    {
+      "path": "vendor/lib64/vendor.display.color@1.0.so",
+      "sha1": "cc65cefe1cec1ddc526c8ead1b95f5fd55eff271",
+      "declared_pins": [
+        "cc65cefe1cec1ddc526c8ead1b95f5fd55eff271"
+      ],
+      "download_url": "https://raw.githubusercontent.com/lenovo-basements/proprietary_vendor_lenovo_asphalt/c325bce3a34d0d0cb8d89fdaede290d094062172/proprietary/vendor/lib64/vendor.display.color@1.0.so"
+    },
+    {
+      "path": "vendor/lib64/vendor.display.color@1.1.so",
+      "sha1": "99a37926e217c8bbe866956af33cf188e4305158",
+      "declared_pins": [
+        "99a37926e217c8bbe866956af33cf188e4305158"
+      ],
+      "download_url": "https://raw.githubusercontent.com/lenovo-basements/proprietary_vendor_lenovo_asphalt/c325bce3a34d0d0cb8d89fdaede290d094062172/proprietary/vendor/lib64/vendor.display.color@1.1.so"
+    },
+    {
+      "path": "vendor/lib64/vendor.display.color@1.2.so",
+      "sha1": "689f6269314fa92b59d393460427ae08d68f4576",
+      "declared_pins": [
+        "689f6269314fa92b59d393460427ae08d68f4576"
+      ],
+      "download_url": "https://raw.githubusercontent.com/lenovo-basements/proprietary_vendor_lenovo_asphalt/c325bce3a34d0d0cb8d89fdaede290d094062172/proprietary/vendor/lib64/vendor.display.color@1.2.so"
+    },
+    {
+      "path": "vendor/lib64/vendor.display.color@1.3.so",
+      "sha1": "4ad7470d442731378f611a5538a9dccdc62cd831",
+      "declared_pins": [
+        "4ad7470d442731378f611a5538a9dccdc62cd831"
+      ],
+      "download_url": "https://raw.githubusercontent.com/lenovo-basements/proprietary_vendor_lenovo_asphalt/c325bce3a34d0d0cb8d89fdaede290d094062172/proprietary/vendor/lib64/vendor.display.color@1.3.so"
+    },
+    {
+      "path": "vendor/lib64/vendor.display.color@1.4.so",
+      "sha1": "9ae82220713f7d37273a12883498b1adfa19baf4",
+      "declared_pins": [
+        "9ae82220713f7d37273a12883498b1adfa19baf4"
+      ],
+      "download_url": "https://raw.githubusercontent.com/lenovo-basements/proprietary_vendor_lenovo_asphalt/c325bce3a34d0d0cb8d89fdaede290d094062172/proprietary/vendor/lib64/vendor.display.color@1.4.so"
+    },
+    {
+      "path": "vendor/lib64/vendor.display.color@1.5.so",
+      "sha1": "57b83442fd8b7371fb7db758c89ca44a01b2b1da",
+      "declared_pins": [
+        "57b83442fd8b7371fb7db758c89ca44a01b2b1da"
+      ],
+      "download_url": "https://raw.githubusercontent.com/lenovo-basements/proprietary_vendor_lenovo_asphalt/c325bce3a34d0d0cb8d89fdaede290d094062172/proprietary/vendor/lib64/vendor.display.color@1.5.so"
+    },
+    {
+      "path": "vendor/lib64/vendor.display.color@1.6.so",
+      "sha1": "f9f914003858e641fd19d41676465167e5b20053",
+      "declared_pins": [
+        "f9f914003858e641fd19d41676465167e5b20053"
+      ],
+      "download_url": "https://raw.githubusercontent.com/lenovo-basements/proprietary_vendor_lenovo_asphalt/c325bce3a34d0d0cb8d89fdaede290d094062172/proprietary/vendor/lib64/vendor.display.color@1.6.so"
+    },
+    {
+      "path": "vendor/lib64/vendor.display.color@1.7.so",
+      "sha1": "982805fb0f7a68df6a796173d6d3bb24a7dbaa7a",
+      "declared_pins": [
+        "982805fb0f7a68df6a796173d6d3bb24a7dbaa7a"
+      ],
+      "download_url": "https://raw.githubusercontent.com/lenovo-basements/proprietary_vendor_lenovo_asphalt/c325bce3a34d0d0cb8d89fdaede290d094062172/proprietary/vendor/lib64/vendor.display.color@1.7.so"
+    },
+    {
+      "path": "vendor/lib64/vendor.display.postproc@1.0.so",
+      "sha1": "d4698e4d21e0a65611f2e508a841749447c71498",
+      "declared_pins": [
+        "d4698e4d21e0a65611f2e508a841749447c71498"
+      ],
+      "download_url": "https://raw.githubusercontent.com/lenovo-basements/proprietary_vendor_lenovo_asphalt/c325bce3a34d0d0cb8d89fdaede290d094062172/proprietary/vendor/lib64/vendor.display.postproc@1.0.so"
+    }
+  ]
+}

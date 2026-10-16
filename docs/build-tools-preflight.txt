@@ -1,0 +1,6 @@
+Already present: build/soong
+Already present: vendor/qcom/opensource/healthd-ext
+Already present: packages/apps/Settings
+Already present: kernel/lenovo/sm8475
+All patches passed preflight; no changes made.
+Pinned WebView SHA256, size and ZIP integrity passed.

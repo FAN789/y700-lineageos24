@@ -1,0 +1,17 @@
+diff --git a/arch/arm64/configs/vendor/asphalt_GKI.config b/arch/arm64/configs/vendor/asphalt_GKI.config
+index 03ea7f277..740ff074b 100644
+--- a/arch/arm64/configs/vendor/asphalt_GKI.config
++++ b/arch/arm64/configs/vendor/asphalt_GKI.config
+@@ -5,4 +5,10 @@ CONFIG_KTZ8866_BACKLIGHT_BKL=m
+ CONFIG_AWINIC_HAPTIC_HV=m
+ CONFIG_BUILD_ARM64_DT_OVERLAY=y
+ 
+-# CONFIG_QCOM_WCD_USBSS_I2C is not set
+\ No newline at end of file
++# CONFIG_QCOM_WCD_USBSS_I2C is not set
++# Native Linux desktop sandbox namespaces (asphalt only)
++# CONFIG_SYSVIPC is not set
++CONFIG_POSIX_MQUEUE=y
++CONFIG_IPC_NS=y
++CONFIG_USER_NS=y
++CONFIG_PID_NS=y

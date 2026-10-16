@@ -1,0 +1,9 @@
+<?xml version='1.0' encoding='utf-8'?>
+<manifest>
+  <remote name="y700-community" fetch="https://github.com/lolipuru" />
+  <project path="device/lenovo/asphalt" name="android_device_lenovo_asphalt" remote="y700-community" revision="fbfe68c06a1342573306d270b02a9eed93d49095" />
+  <project path="device/lenovo/sm8475-common" name="android_devlce_lenovo_sm8475-common" remote="y700-community" revision="672e1ed4b6701aba913ad2d158ee26338f92bc3c" />
+  <project path="kernel/lenovo/sm8475" name="kernel_lenovo_sm8475" remote="y700-community" revision="9b7833ce5db1a9914dc5e5e06d1a0cccfdd5c73b" />
+  <project path="kernel/lenovo/sm8475-devicetrees" name="kernel_lenovo_sm8475-devicetrees" remote="y700-community" revision="b6bd9a472886221aab3f5f2eec6ad6c639d2d4d9" />
+  <project path="kernel/lenovo/sm8475-modules" name="kernel_lenovo_sm8475-modules" remote="y700-community" revision="0ba8898cd4d9201c0942d4145813a98d1a93389a" />
+</manifest>

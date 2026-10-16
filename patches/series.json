@@ -1,0 +1,22 @@
+[
+  {
+    "project": "build/soong",
+    "patch": "0002-soong-builder-go-memory-controls.patch",
+    "base_commit": "5ea236479501d50a4a0eafb568f4f35d1bdda3cb"
+  },
+  {
+    "project": "vendor/qcom/opensource/healthd-ext",
+    "patch": "0003-asphalt-native-battery-soh.patch",
+    "base_commit": "7d565896ebdb1662daa2cf0f72e80206cfda104c"
+  },
+  {
+    "project": "packages/apps/Settings",
+    "patch": "0004-settings-prefer-measured-battery-soh.patch",
+    "base_commit": "beaa8aa6323be765ad9369ec91ad3604cc65b58a"
+  },
+  {
+    "project": "kernel/lenovo/sm8475",
+    "patch": "0005-asphalt-linux-namespace-support.patch",
+    "base_commit": "9b7833ce5db1a9914dc5e5e06d1a0cccfdd5c73b"
+  }
+]

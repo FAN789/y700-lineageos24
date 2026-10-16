@@ -1,0 +1,82 @@
+[
+  {
+    "path": "device/lenovo/asphalt",
+    "base_commit": "fbfe68c06a1342573306d270b02a9eed93d49095",
+    "snapshot_tree": "7132dbd9f8602606dc16949284969a4bc7d0ec04",
+    "modified_files": [],
+    "source_archive": "device_lenovo_asphalt.tar.gz",
+    "bytes": 52748,
+    "sha256": "133c34a67694a2ddbcfe492a92c41ca7e911b406e4d129958bc5fbeaceade90d"
+  },
+  {
+    "path": "device/lenovo/sm8475-common",
+    "base_commit": "672e1ed4b6701aba913ad2d158ee26338f92bc3c",
+    "snapshot_tree": "4af5284d2ed22a253b0fd8f6003fb0af7d74b46b",
+    "modified_files": [],
+    "source_archive": "device_lenovo_sm8475-common.tar.gz",
+    "bytes": 104105,
+    "sha256": "0cde5e1ab04b59cf6d7300393bd664c3d712acefa54e89a778ae5fd48f22bb49"
+  },
+  {
+    "path": "kernel/lenovo/sm8475",
+    "base_commit": "9b7833ce5db1a9914dc5e5e06d1a0cccfdd5c73b",
+    "snapshot_tree": "15538ceeb640eef1209915ccf1c30448533c4db1",
+    "modified_files": [
+      "arch/arm64/configs/vendor/asphalt_GKI.config"
+    ],
+    "source_archive": "kernel_lenovo_sm8475.tar.gz",
+    "bytes": 191549006,
+    "sha256": "4d84c9c08e93f5227e36efd4ec5426cac36ae32dfe1d858dc4f6e64ba8e1e003"
+  },
+  {
+    "path": "kernel/lenovo/sm8475-devicetrees",
+    "base_commit": "b6bd9a472886221aab3f5f2eec6ad6c639d2d4d9",
+    "snapshot_tree": "893eb750195c4c62723f5dbd040ddb8e488d6b29",
+    "modified_files": [],
+    "source_archive": "kernel_lenovo_sm8475-devicetrees.tar.gz",
+    "bytes": 3038238,
+    "sha256": "051d8267a8d08b28c07893300ae0d4b82d687d39f8ad1238b5dbd8c8544a5f38"
+  },
+  {
+    "path": "kernel/lenovo/sm8475-modules",
+    "base_commit": "0ba8898cd4d9201c0942d4145813a98d1a93389a",
+    "snapshot_tree": "21827cae0854fcd11b7a6a6ffdbe1f6bc9f3d76b",
+    "modified_files": [],
+    "source_archive": "kernel_lenovo_sm8475-modules.tar.gz",
+    "bytes": 27754915,
+    "sha256": "6a6cae6612cf00d9af6d124b25bb605b5901f1397e801e0bbc68c562ce1fcfd6"
+  },
+  {
+    "path": "vendor/qcom/opensource/healthd-ext",
+    "base_commit": "7d565896ebdb1662daa2cf0f72e80206cfda104c",
+    "snapshot_tree": "e030efd2025d99f2420cfa1890e9083addfa1ae2",
+    "modified_files": [
+      "aidl/main.cpp"
+    ],
+    "source_archive": "vendor_qcom_opensource_healthd-ext.tar.gz",
+    "bytes": 10819,
+    "sha256": "b7c94976fa8e110a382ad223a7d4c5c4b54833003d522ae363a815e1172e3942"
+  },
+  {
+    "path": "packages/apps/Settings",
+    "base_commit": "beaa8aa6323be765ad9369ec91ad3604cc65b58a",
+    "snapshot_tree": "72ec81e2a8daec135a7c18b728f6ec94640c97f8",
+    "modified_files": [
+      "src/com/android/settings/deviceinfo/batteryinfo/BatteryMaximumCapacityPreferenceController.java"
+    ],
+    "source_archive": "packages_apps_Settings.tar.gz",
+    "bytes": 54858025,
+    "sha256": "ad44b432283a316a737f3d0166bbcad150e6b32826c221e390b0b6d009230521"
+  },
+  {
+    "path": "build/soong",
+    "base_commit": "5ea236479501d50a4a0eafb568f4f35d1bdda3cb",
+    "snapshot_tree": "533934b13e1127fa7b08e119a8527584a80e7c37",
+    "modified_files": [
+      "ui/build/soong.go"
+    ],
+    "source_archive": "build_soong.tar.gz",
+    "bytes": 3334437,
+    "sha256": "040a30e49c8163a80cdbfe2006bdf6be7ec35e0c6206bc27e7d19518755cca0e"
+  }
+]

@@ -1,0 +1,20 @@
+diff --git a/src/com/android/settings/deviceinfo/batteryinfo/BatteryMaximumCapacityPreferenceController.java b/src/com/android/settings/deviceinfo/batteryinfo/BatteryMaximumCapacityPreferenceController.java
+index 186945e..18c2541 100644
+--- a/src/com/android/settings/deviceinfo/batteryinfo/BatteryMaximumCapacityPreferenceController.java
++++ b/src/com/android/settings/deviceinfo/batteryinfo/BatteryMaximumCapacityPreferenceController.java
+@@ -40,6 +40,15 @@ public class BatteryMaximumCapacityPreferenceController extends BasePreferenceCo
+ 
+     @Override
+     public CharSequence getSummary() {
++        // Prefer a fuel-gauge SOH measurement over a ratio of capacities:
++        // vendor charge_full can describe a generic internal gauge profile.
++        BatteryManager batteryManager = mContext.getSystemService(BatteryManager.class);
++        final int stateOfHealth = batteryManager == null ? 0
++                : batteryManager.getIntProperty(BatteryManager.BATTERY_PROPERTY_STATE_OF_HEALTH);
++        if (stateOfHealth > 0 && stateOfHealth <= 100) {
++            return java.text.NumberFormat.getPercentInstance().format(stateOfHealth / 100.0);
++        }
++
+         Intent batteryIntent = BatteryUtils.getBatteryIntent(mContext);
+         final int maxCapacityUah =
+                 batteryIntent.getIntExtra(BatteryManager.EXTRA_MAXIMUM_CAPACITY, -1);

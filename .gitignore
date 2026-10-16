@@ -1,0 +1,7 @@
+/release-assets/
+*.img
+*.zip
+*.tar.gz
+.private/
+.env
+__pycache__/

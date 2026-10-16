@@ -1,0 +1,28 @@
+diff --git a/aidl/main.cpp b/aidl/main.cpp
+index ce7a2ae..67ed628 100644
+--- a/aidl/main.cpp
++++ b/aidl/main.cpp
+@@ -9,6 +9,7 @@
+ #include <android/binder_interface_utils.h>
+ #include <cutils/klog.h>
+ #include <cutils/properties.h>
++#include <string.h>
+ #include <health/utils.h>
+ #include <health-impl/ChargerUtils.h>
+ #include <health-impl/Health.h>
+@@ -131,6 +132,15 @@ int main(int argc, char** argv) {
+     auto config = std::make_unique<healthd_config>();
+     ::android::hardware::health::InitHealthdConfig(config.get());
+     qti_healthd_board_init(config.get());
++
++    // Lenovo exposes the external fuel gauge's SOH outside power_supply.
++    // Keep all capacity/calibration values unchanged and use the native reading.
++    char device[PROPERTY_VALUE_MAX];
++    property_get("ro.product.vendor.device", device, "");
++    if (strcmp(device, "asphalt") == 0 &&
++        access("/sys/class/qcom-battery/soh", R_OK) == 0) {
++        config->batteryStateOfHealthPath = "/sys/class/qcom-battery/soh";
++    }
+     auto binder = ndk::SharedRefBase::make<Health>(gInstanceName, std::move(config));
+ 
+     if (argc >= 2 && argv[1] == gChargerArg) {

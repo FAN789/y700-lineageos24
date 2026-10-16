@@ -1,0 +1,15 @@
+{
+  "date": "2026-10-16",
+  "status": "passed",
+  "scope": "Independent allowlist repository and fixed Git-tree source archives; original build firmware hash verified",
+  "repository_files_scanned": 23,
+  "source_archives": 8,
+  "archive_members_checked": 101196,
+  "secret_or_private_identifier_findings": 0,
+  "private_backups_included": false,
+  "user_data_included": false,
+  "raw_logs_included": false,
+  "screenshots_included": false,
+  "device_identifiers_included": false,
+  "limitations": "Upstream public copyright authors, test fixtures and public certificates are retained. This checks the defined release allowlist, not every private file in the working archive."
+}

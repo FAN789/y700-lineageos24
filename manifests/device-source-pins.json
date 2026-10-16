@@ -1,0 +1,27 @@
+[
+  {
+    "repository": "android_device_lenovo_asphalt",
+    "commit": "fbfe68c06a1342573306d270b02a9eed93d49095",
+    "date": "2026-10-07T20:30:51Z"
+  },
+  {
+    "repository": "android_devlce_lenovo_sm8475-common",
+    "commit": "672e1ed4b6701aba913ad2d158ee26338f92bc3c",
+    "date": "2026-10-07T20:42:10Z"
+  },
+  {
+    "repository": "kernel_lenovo_sm8475",
+    "commit": "9b7833ce5db1a9914dc5e5e06d1a0cccfdd5c73b",
+    "date": "2026-09-02T16:19:59Z"
+  },
+  {
+    "repository": "kernel_lenovo_sm8475-devicetrees",
+    "commit": "b6bd9a472886221aab3f5f2eec6ad6c639d2d4d9",
+    "date": "2026-05-05T10:38:53Z"
+  },
+  {
+    "repository": "kernel_lenovo_sm8475-modules",
+    "commit": "0ba8898cd4d9201c0942d4145813a98d1a93389a",
+    "date": "2026-09-02T19:34:25Z"
+  }
+]

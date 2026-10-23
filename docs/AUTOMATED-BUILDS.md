@@ -8,6 +8,7 @@
 - 每周五 19:17 UTC（北京时间周六 03:17）运行 tracking；不自动跨越 Android 大版本。
 - WSL 专用环境建议 20 CPU、40 GB RAM、24 GB swap；同步 -j8，编译 -j12。源码和 ccache 在 Linux ext4 中。
 - 四项补丁必须能够干净应用；tracking 要求新提交是原补丁基线的后代。冲突、未知修改、厂商输入缺失或原生校验失败都会停止，不跳过 ELF、VINTF 或 SELinux 检查。
+- CI 额外应用单独记录的 Updater 地址补丁（ci/patches.json），因此候选包包含 OTA 入口，不能称为原发布包的按位复现。现有四项功能补丁保持不变。
 - GitHub concurrency 与本机 flock 双重串行；中断保留源码和日志。缓存不自动删除。
 - 仅 main 上的手动和定时工作流可使用此 Runner。**不得添加 pull_request / pull_request_target 或执行不可信分支的任务。** 仓库写入权限意味着能够在该 Runner 上执行代码，必须限制协作者权限。
 - Windows 托管 WSL 的 Runner 在专用用户登录后启动；Windows 注销、关机或网络断开时任务无法运行。不要把“GitHub 已排队”当成正在编译。

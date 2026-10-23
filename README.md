@@ -10,6 +10,7 @@
 - [已解析的完整源码 manifest](manifests/resolved-manifest.xml) 固定所有项目提交；另有 [设备 manifest](manifests/y700.xml)、[源码树与快照哈希](manifests/source-snapshots.json)。
 - [构建步骤](docs/BUILD.md)、[安装与 PRC 兼容性](docs/INSTALL.md)、[实测范围与已知限制](docs/TESTING.md)。
 - [隐私检查与发布边界](docs/PRIVACY.md)、[上游与许可证](NOTICE.md)。
+- [本地自动构建与 OTA 发布说明](docs/AUTOMATED-BUILDS.md)：每周构建候选包，实机验收后再推广；当前 OTA 列表为空。
 
 ## 有效改动
 

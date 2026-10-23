@@ -1,0 +1,38 @@
+name: Y700 local build
+on:
+  workflow_dispatch:
+    inputs:
+      source:
+        description: Baseline reproduction or tracked Lineage 24 updates
+        type: choice
+        options: [baseline, tracking]
+        default: baseline
+  schedule:
+    - cron: '17 19 * * 5'
+permissions:
+  contents: read
+concurrency:
+  group: y700-source-build
+  cancel-in-progress: false
+jobs:
+  build:
+    if: github.repository == 'FAN789/y700-lineageos24' && github.ref == 'refs/heads/main'
+    runs-on: [self-hosted, Linux, X64, y700-private-builder]
+    timeout-minutes: 1440
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - name: Verify pipeline safety
+        run: |
+          python3 ci/check-local.py
+          bash -n ci/build.sh
+      - name: Sync, build and inspect local candidate
+        env:
+          BUILD_MODE: ${{ inputs.source || 'tracking' }}
+        run: bash ci/build.sh "$BUILD_MODE"
+      - name: Report local state
+        if: always()
+        run: |
+          cat /home/builder/y700-lineage24/pipeline.state || true
+          echo 'Candidates stay on the private builder; building does not promote an OTA.' >> "$GITHUB_STEP_SUMMARY"

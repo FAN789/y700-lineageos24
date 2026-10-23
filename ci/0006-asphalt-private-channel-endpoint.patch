@@ -1,0 +1,11 @@
+diff --git a/lineage_asphalt.mk b/lineage_asphalt.mk
+--- a/lineage_asphalt.mk
++++ b/lineage_asphalt.mk
+@@ -26,3 +26,7 @@ BUILD_FINGERPRINT := Lenovo/TB320FC/TB320FC:15/AQ3A.240812.002/ZUI_17.0.339_251219_R
+ 
+ # GMS
+ PRODUCT_GMS_CLIENTID_BASE := android-lenovo
++
++# Personal update channel; empty until a candidate passes release acceptance.
++PRODUCT_SYSTEM_PROPERTIES += \
++    lineage.updater.uri=https://raw.githubusercontent.com/FAN789/y700-lineageos24/main/ota/asphalt.json

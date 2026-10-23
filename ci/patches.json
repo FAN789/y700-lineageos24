@@ -1,0 +1,7 @@
+[
+  {
+    "project": "device/lenovo/asphalt",
+    "patch": "../ci/0006-asphalt-private-channel-endpoint.patch",
+    "base_commit": "fbfe68c06a1342573306d270b02a9eed93d49095"
+  }
+]

@@ -1,9 +1,12 @@
 diff --git a/lineage_asphalt.mk b/lineage_asphalt.mk
+index a44efe0..dd77285 100644
 --- a/lineage_asphalt.mk
 +++ b/lineage_asphalt.mk
-@@ -28,2 +28,6 @@
+@@ -29,2 +29,6 @@ BUILD_FINGERPRINT := Lenovo/TB320FC/TB320FC:15/AQ3A.240812.002/ZUI_17.0.339_2512
  # GMS
- PRODUCT_GMS_CLIENTID_BASE := android-lenovo
+-PRODUCT_GMS_CLIENTID_BASE := android-lenovo
+\ No newline at end of file
++PRODUCT_GMS_CLIENTID_BASE := android-lenovo
 +
 +# Personal update channel; empty until a candidate passes release acceptance.
 +PRODUCT_SYSTEM_PROPERTIES += \

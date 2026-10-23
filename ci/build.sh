@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # SPDX-License-Identifier: Apache-2.0
 set -eo pipefail
+[ "$(uname -s)" = Linux ] && [ "$(uname -m)" = x86_64 ] && [ "$(id -un)" = builder ] || { echo 'Dedicated Linux x86_64 builder account required'; exit 2; }
 mode=${1:-baseline}
 case "$mode" in baseline|tracking) ;; *) echo 'Invalid build mode'; exit 2;; esac
 bundle=$(cd "$(dirname "$0")/.." && pwd)

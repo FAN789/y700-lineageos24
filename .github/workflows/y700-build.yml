@@ -17,7 +17,7 @@ concurrency:
 jobs:
   build:
     if: github.repository == 'FAN789/y700-lineageos24' && github.ref == 'refs/heads/main'
-    runs-on: [self-hosted, Linux, X64, y700-private-builder]
+    runs-on: [self-hosted, y700-private-builder]
     timeout-minutes: 1440
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683

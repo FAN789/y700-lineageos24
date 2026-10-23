@@ -24,4 +24,10 @@ with tempfile.TemporaryDirectory() as d:
  with zipfile.ZipFile(bad,'w') as z:z.writestr('META-INF/com/android/metadata','ota-type=AB\npre-device=another-tablet\n')
  run(sys.executable,str(bundle/'ci/ota-feed.py'),'inspect',str(bad),'--output',str(root/'result.json'),ok=False)
  assert not (root/'result.json').exists()
-print('PASS: exact patch restore, idempotency, unrelated-edit preservation and wrong-device OTA rejection')
+ device=root/'device';device.mkdir();run('git','-C',str(device),'init');run('git','-C',str(device),'config','core.autocrlf','false')
+ # The pinned upstream device makefile has no trailing newline.
+ (device/'lineage_asphalt.mk').write_bytes(b'placeholder\n'*28+b'# GMS\nPRODUCT_GMS_CLIENTID_BASE := android-lenovo')
+ endpoint=str(bundle/'ci/0006-asphalt-private-channel-endpoint.patch')
+ run('git','-C',str(device),'apply','--check',endpoint);run('git','-C',str(device),'apply',endpoint)
+ assert b'lineage.updater.uri=https://' in (device/'lineage_asphalt.mk').read_bytes()
+print('PASS: exact patch restore, idempotency, unrelated-edit preservation, wrong-device rejection and upstream EOF')

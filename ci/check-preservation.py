@@ -11,6 +11,9 @@ assert 'null HIDL configurable.' in framework.read_text() and 'getConfigurable t
 for name in ['backuptool_ab.sh','backuptool_postinstall.sh']:
  t=(s/'vendor/lineage/prebuilt/common/bin'/name).read_text()
  assert '|| exit $?' in t or '|| return $?' in t
+ab=(s/'vendor/lineage/prebuilt/common/bin/backuptool_ab.sh').read_text()
+assert '/data/adb/magisk/addon.d.sh' in ab and '99-magisk.sh' in ab
+assert 'run_stages pre-restore restore post-restore ||' in ab
 target=s/'out/target/product/asphalt/obj/PACKAGING/target_files_intermediates/lineage_asphalt-target_files'
 if a.candidate:
  report=json.loads((a.candidate/'ota-inspection.json').read_text())
@@ -19,7 +22,8 @@ if a.candidate:
  for n in ['backuptool_ab.sh','backuptool_postinstall.sh']:
   assert (target/'SYSTEM/bin'/n).read_bytes()==(s/'vendor/lineage/prebuilt/common/bin'/n).read_bytes(),n+' packaged script mismatch'
  engine=(target/'SYSTEM/bin/update_engine').read_bytes();assert b'Running addon.d backup/restore for system' in engine
- assert (target/'SYSTEM/lib64/libcodec2_client.so').is_file() and (target/'SYSTEM/lib/libcodec2_client.so').is_file()
+ for lib in ['SYSTEM/lib64/libcodec2_client.so','SYSTEM/lib/libcodec2_client.so']:
+  assert b'null HIDL configurable.' in (target/lib).read_bytes(),'Media guard missing from packaged '+lib
  for forbidden in ['userdata','metadata','abl','persist','modemst1','modemst2','fsg']:
   assert not (target/'IMAGES'/(forbidden+'.img')).exists(),'Unexpected data/firmware image: '+forbidden
  payload_props=(target/'META/postinstall_config.txt').read_text();assert 'RUN_POSTINSTALL_system=true' in payload_props

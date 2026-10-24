@@ -17,6 +17,12 @@
 
 构建产物保留在编译机的 candidates 目录。`ci/ota-feed.py inspect` 检查整包 CRC、SHA256、payload/metadata 哈希、A/B 机型和真实 ZIP 流式偏移。它**不替代**分区重建、容量、OTA/payload 签名、AVB、SELinux/VINTF 和硬件验收。
 
+`ci/validate-native.py` 随后使用同次构建的原生 Android host tools：校验整包及 payload 签名，从 payload 重建全部 12 个分区并匹配 manifest/target-files 的镜像哈希，检查分区及动态分区组容量，再验证 AVB 主公钥、两个子链的公钥/rollback location、各镜像描述符与 VINTF。签名信任固定为本实验渠道既有 AOSP test keys，不自动接受任意自签公钥。容量上限来自本项目已存档的单台 PRC 设备记录，仍需要实机重新确认；不代表所有同名机型布局相同。
+
+镜像必须取自 OTA payload，并与原生 OTA 输入 `target_files/IMAGES` 对照。产品输出根目录中的早期 boot.img 中间产物可能不同，不能混作本包的维护镜像。候选包保留 offline-validation/report.json 和原生工具日志；旧失败诊断保存在 attempt-history。verify-existing 操作不重编译，但需要保留与该候选匹配的 target-files；后续构建覆盖后不能拿不同版本 target-files 证明旧包。
+
+原生签名通过只证明与预期测试公钥一致。当前整包仍使用 AOSP 旧测试证书（签名工具采用 SHA-1 整包摘要），payload 哈希为 SHA-256；AVB 根为 SHA256_RSA4096、子链 RSA2048，继承 flags3。没有因此变为生产私钥签名或启用强制 Verified Boot。
+
 OTA 地址预留为 `https://raw.githubusercontent.com/FAN789/y700-lineageos24/main/ota/asphalt.json`，格式采用 LineageOS 24 Updater 的数组结构。初始 feed 是空数组，平板不会因此收到尚未验收的候选包。现有固件没有配置此地址；首次接入需要在确认安装与签名迁移方式后更新固件，不能仅靠修改 GitHub 就宣称已开通 OTA。
 
 `ci/ota-feed.py feed` 只接受与实际 OTA 哈希绑定的验收记录。所有 gate 都必须为 true：私有正式签名、payload 分区/容量、AVB、SELinux/VINTF、硬件、签名迁移、root 持续性。由维护者完成独立验收，不能由“编译成功”自动填 true。通过后才创建 Releases 资产并原子更新 feed，保留旧版本及其哈希。

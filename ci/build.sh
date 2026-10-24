@@ -55,7 +55,8 @@ mkdir -p "$dest"
 cp "$base/logs/$run-resolved.xml" "$dest/resolved-manifest.xml"
 cp "${zips[0]}" "$dest/"
 python3 "$bundle/ci/ota-feed.py" inspect "$dest/$(basename "${zips[0]}")" --output "$dest/ota-inspection.json"
+python3 "$bundle/ci/validate-native.py" --source "$PWD" --candidate "$dest" --pipeline-lock-fd 9
 sha256sum "$dest/"*.zip > "$dest/SHA256SUMS"
-# No release promotion: private signing, payload/AVB validation and device acceptance remain mandatory.
+# No release promotion: private signing/migration and device acceptance remain mandatory.
 state candidate-needs-acceptance
 echo "Candidate retained locally: $dest"

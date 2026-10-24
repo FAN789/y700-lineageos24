@@ -13,9 +13,10 @@ mapfile -t zips < <(find "$dest" -maxdepth 1 -type f -name 'lineage-24.0-*-aspha
 [ "${#zips[@]}" = 1 ] || { echo 'Exactly one candidate OTA required'; exit 2; }
 python3 "$bundle/ci/ota-feed.py" inspect "${zips[0]}" --output "$dest/ota-inspection.json.next"
 mv "$dest/ota-inspection.json.next" "$dest/ota-inspection.json"
+python3 "$bundle/ci/validate-native.py" --source "$base/source" --candidate "$dest" --pipeline-lock-fd 9
 (cd "$dest"; sha256sum "$(basename "${zips[0]}")" > SHA256SUMS)
 printf '{"candidate_run":"%s","transport_integrity":"passed","release_accepted":false,"ci_revision":"%s"}\n' "$run" "$(git -C "$bundle" rev-parse HEAD)" > "$dest/verification.state"
-echo 'Existing OTA CRC, full hash, payload/metadata hashes and streaming offsets passed; release acceptance still pending.'
+echo 'Existing OTA transport, native signatures, all partition hashes/capacities, AVB and VINTF passed; device and release acceptance still pending.'
 cat "$dest/SHA256SUMS"
 if [ -n "${GITHUB_STEP_SUMMARY:-}" ]; then
   cat "$dest/verification.state" >> "$GITHUB_STEP_SUMMARY"

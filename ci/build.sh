@@ -28,6 +28,9 @@ repo sync -c -j8 --retry-fetches=3 --no-clone-bundle --no-tags --fail-fast
 repo manifest -r -o "$base/logs/$run-resolved.xml"
 state patching
 python3 "$bundle/ci/apply-reviewed-patches.py" --bundle "$bundle" --source "$PWD" --mode "$mode"
+python3 "$bundle/ci/check-preservation.py" --source "$PWD"
+python3 "$bundle/ci/test-preservation.py" --source "$PWD"
+python3 "$bundle/ci/test-postinstall-routing.py" --source "$PWD"
 python3 "$bundle/tools/verify-webview.py" --source "$PWD"
 state waiting-software-inputs
 if [ ! -f "$inputs/stock-blobs.complete" ]; then
@@ -55,7 +58,9 @@ mkdir -p "$dest"
 cp "$base/logs/$run-resolved.xml" "$dest/resolved-manifest.xml"
 cp "${zips[0]}" "$dest/"
 python3 "$bundle/ci/ota-feed.py" inspect "$dest/$(basename "${zips[0]}")" --output "$dest/ota-inspection.json"
+python3 "$bundle/ci/check-preservation.py" --source "$PWD" --candidate "$dest"
 python3 "$bundle/ci/validate-native.py" --source "$PWD" --candidate "$dest" --pipeline-lock-fd 9
+python3 "$bundle/ci/check-kernel-preservation.py" --source "$PWD" --candidate "$dest"
 sha256sum "$dest/"*.zip > "$dest/SHA256SUMS"
 # No release promotion: private signing/migration and device acceptance remain mandatory.
 state candidate-needs-acceptance

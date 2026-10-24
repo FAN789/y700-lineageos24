@@ -1,0 +1,70 @@
+diff --git a/prebuilt/common/bin/backuptool_ab.sh b/prebuilt/common/bin/backuptool_ab.sh
+index b5741d83..a9e7c956 100755
+--- a/prebuilt/common/bin/backuptool_ab.sh
++++ b/prebuilt/common/bin/backuptool_ab.sh
+@@ -38,6 +38,18 @@ preserve_addon_d() {
+ 
+     chmod 755 /postinstall/tmp/addon.d/*.sh
+   fi
++
++  # File-patched Magisk installs may have no /system/addon.d trampoline.
++  # Preserve only an already-installed Magisk using its own survival script;
++  # unrooted systems do not acquire root from the firmware.
++  if [ -f /data/adb/magisk/addon.d.sh ] &&
++     [ ! -e /postinstall/tmp/addon.d/99-magisk.sh ]; then
++    [ -f /data/adb/magisk/util_functions.sh ] &&
++      [ -x /data/adb/magisk/magiskboot ] || return 1
++    mkdir -p /postinstall/tmp/addon.d/ || return 1
++    cp -p /data/adb/magisk/addon.d.sh /postinstall/tmp/addon.d/99-magisk.sh || return 1
++    chmod 755 /postinstall/tmp/addon.d/99-magisk.sh || return 1
++  fi
+ }
+ 
+ # Restore /postinstall/system/addon.d from /postinstall/tmp/addon.d
+@@ -82,9 +94,9 @@ if [ -d /postinstall/tmp/addon.d/ ]; then
+ 
+     for stage in $@; do
+       if [ $v -ge 3 ]; then
+-        $script $stage
++        $script $stage || return $?
+       else
+-        ADDOND_VERSION=2 $script $stage
++        ADDOND_VERSION=2 $script $stage || return $?
+       fi
+     done
+   done
+@@ -175,8 +187,8 @@ case "$1" in
+   backup)
+     if check_prereq; then
+       mkdir -p $C
+-      preserve_addon_d
+-      run_stages pre-backup backup post-backup
++      preserve_addon_d || { cleanup; exit 1; }
++      run_stages pre-backup backup post-backup || { cleanup; exit 1; }
+       umount_extra $all_V3_partitions
+     else
+       cleanup
+@@ -184,7 +196,7 @@ case "$1" in
+   ;;
+   restore)
+     if check_prereq; then
+-      run_stages pre-restore restore post-restore
++      run_stages pre-restore restore post-restore || { cleanup; exit 1; }
+       restore_addon_d
+       cleanup
+       sync
+diff --git a/prebuilt/common/bin/backuptool_postinstall.sh b/prebuilt/common/bin/backuptool_postinstall.sh
+index eef04098..7c7cacad 100755
+--- a/prebuilt/common/bin/backuptool_postinstall.sh
++++ b/prebuilt/common/bin/backuptool_postinstall.sh
+@@ -3,8 +3,8 @@
+ # LineageOS A/B OTA Postinstall Script
+ #
+ 
+-/postinstall/system/bin/backuptool_ab.sh backup
+-/postinstall/system/bin/backuptool_ab.sh restore
++/postinstall/system/bin/backuptool_ab.sh backup || exit $?
++/postinstall/system/bin/backuptool_ab.sh restore || exit $?
+ 
+ sync
+ 

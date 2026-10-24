@@ -1,0 +1,4 @@
+patches/*.patch text eol=lf
+patches/series.json text eol=lf
+ci/*.sh text eol=lf
+ci/*.py text eol=lf

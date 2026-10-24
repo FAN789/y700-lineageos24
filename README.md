@@ -11,12 +11,14 @@
 - [构建步骤](docs/BUILD.md)、[安装与 PRC 兼容性](docs/INSTALL.md)、[实测范围与已知限制](docs/TESTING.md)。
 - [隐私检查与发布边界](docs/PRIVACY.md)、[上游与许可证](NOTICE.md)。
 - [本地自动构建与 OTA 发布说明](docs/AUTOMATED-BUILDS.md)：每周构建候选包，实机验收后再推广；当前 OTA 列表为空。
+- [A/B OTA 保留与失败检查](docs/OTA-PRESERVATION.md)：后续候选的 GApps、已有 root 和数据保留门槛。
 
 ## 有效改动
 
 1. 构建端 Soong Go 内存控制；不改变设备安全设置。
 2. Health 服务读取设备已有只读 SOH 节点，Settings 优先显示有效的原生健康百分比，不写电池校准、不伪造容量。
 3. asphalt 内核启用 USER_NS、PID_NS、IPC_NS、POSIX_MQUEUE，供独立 Linux 用户空间/桌面应用沙箱使用；保留 Android 要求的 SYSVIPC=n。
+4. 后续候选加入 Codec2 空配置防护、system 专用 addon.d 路由及已有 Magisk 的保留入口；公开旧版固件不因此自动改变。
 
 原生 ELF、依赖、SELinux 和 VINTF 检查没有被跳过。已撤销的 Wi-Fi-only 提取试验不包含在构建步骤中。
 

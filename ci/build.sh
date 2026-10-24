@@ -37,6 +37,9 @@ fi
 PYTHONPATH=tools/extract-utils python3 device/lenovo/asphalt/extract-files.py "$inputs/stock-blobs"
 export BUILD_USERNAME=y700-builder BUILD_HOSTNAME=y700-lineage
 export USE_CCACHE=1 CCACHE_DIR=/home/builder/.cache/y700-ccache
+export GOCACHE=/home/builder/.cache/go-build
+mkdir -p "$GOCACHE"
+[ -w "$GOCACHE" ] || { echo 'Go build cache is not writable by builder'; exit 1; }
 export SOONG_BUILDER_GOGC=50 SOONG_BUILDER_GOMEMLIMIT=28GiB
 ccache -M 80G
 source build/envsetup.sh

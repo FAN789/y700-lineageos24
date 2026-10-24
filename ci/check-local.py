@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Exercise patch safety and OTA rejection without firmware builds."""
 from pathlib import Path
-import json,os,subprocess,sys,tempfile,zipfile
+import base64,hashlib,json,os,struct,subprocess,sys,tempfile,zipfile
 bundle=Path(__file__).resolve().parents[1]
 def run(*args,ok=True):
  r=subprocess.run(args,capture_output=True,text=True)
@@ -30,4 +30,27 @@ with tempfile.TemporaryDirectory() as d:
  endpoint=str(bundle/'ci/0006-asphalt-private-channel-endpoint.patch')
  run('git','-C',str(device),'apply','--check',endpoint);run('git','-C',str(device),'apply',endpoint)
  assert b'lineage.updater.uri=https://' in (device/'lineage_asphalt.mk').read_bytes()
-print('PASS: exact patch restore, idempotency, unrelated-edit preservation, wrong-device rejection and upstream EOF')
+ # Nonzero signature length is essential: property metadata excludes it,
+ # whereas the streaming metadata range includes it (native Android behavior).
+ manifest=b'fixture-manifest';signature=b'fixture-signature'
+ payload=b'CrAU'+struct.pack('>QQI',2,len(manifest),len(signature))+manifest+signature+b'body'
+ metadata_size=24+len(manifest)
+ h64=lambda data:base64.b64encode(hashlib.sha256(data).digest()).decode()
+ def fixture(path,wrong_size=False,wrong_hash=False):
+  props=('FILE_HASH='+h64(payload)+'\nFILE_SIZE='+str(len(payload))+'\nMETADATA_HASH='+h64(payload[:metadata_size] if not wrong_hash else b'wrong')+'\nMETADATA_SIZE='+str(metadata_size+(len(signature) if wrong_size else 0))+'\n').encode()
+  def write(meta):
+   with zipfile.ZipFile(path,'w',compression=zipfile.ZIP_STORED) as z:
+    z.writestr('META-INF/com/android/metadata',meta);z.writestr('payload.bin',payload);z.writestr('payload_properties.txt',props)
+  write(b' '*2048)
+  with zipfile.ZipFile(path) as z:
+   with path.open('rb') as raw:
+    offsets={}
+    for item in z.infolist():
+     raw.seek(item.header_offset);header=raw.read(30);n,e=struct.unpack('<HH',header[26:30]);offsets[item.filename]=item.header_offset+30+n+e
+  offset=offsets['payload.bin']
+  meta=('ota-type=AB\npre-device=asphalt,TB320FC\npost-sdk-level=37\npost-security-patch-level=2026-10-01\npost-timestamp=1792804343\nota-property-files=payload_metadata.bin:'+str(offset)+':'+str(metadata_size+len(signature))+',payload.bin:'+str(offset)+':'+str(len(payload))+'\n').encode()
+  assert len(meta)<=2048;write(meta+b' '*(2048-len(meta)))
+ for name,wrong_size,wrong_hash in [('valid',False,False),('wrong-size',True,False),('wrong-hash',False,True)]:
+  path=root/(name+'.zip');fixture(path,wrong_size,wrong_hash)
+  run(sys.executable,str(bundle/'ci/ota-feed.py'),'inspect',str(path),'--output',str(root/(name+'.json')),ok=name=='valid')
+print('PASS: patch safety, wrong-device rejection, upstream EOF, signed-metadata size/hash and streaming range')

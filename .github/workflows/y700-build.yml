@@ -2,6 +2,15 @@ name: Y700 local build
 on:
   workflow_dispatch:
     inputs:
+      operation:
+        description: Build firmware or recheck an existing candidate without rebuilding
+        type: choice
+        options: [build, verify-existing]
+        default: build
+      candidate_run:
+        description: Existing candidate run identifier, required for verify-existing
+        type: string
+        default: ''
       source:
         description: Baseline reproduction or tracked Lineage 24 updates
         type: choice
@@ -28,9 +37,15 @@ jobs:
           python3 ci/check-local.py
           bash -n ci/build.sh
       - name: Sync, build and inspect local candidate
+        if: inputs.operation != 'verify-existing'
         env:
           BUILD_MODE: ${{ inputs.source || 'tracking' }}
         run: bash ci/build.sh "$BUILD_MODE"
+      - name: Recheck existing OTA without rebuilding
+        if: inputs.operation == 'verify-existing'
+        env:
+          CANDIDATE_RUN: ${{ inputs.candidate_run }}
+        run: bash ci/recheck.sh "$CANDIDATE_RUN"
       - name: Report local state
         if: always()
         run: |

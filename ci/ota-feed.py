@@ -14,7 +14,10 @@ def inspect(path):
   props=dict(x.split('=',1) for x in z.read('payload_properties.txt').decode().splitlines() if '=' in x)
   with z.open('payload.bin') as f:
    head=f.read(24);assert head[:4]==b'CrAU' and struct.unpack('>Q',head[4:12])[0]==2,'Unknown payload format'
-   size_meta=24+struct.unpack('>Q',head[12:20])[0]+struct.unpack('>I',head[20:24])[0]
+   # update_engine GetMetadataSize()/METADATA_HASH excludes the signature.
+   # Releasetools' synthetic payload_metadata.bin range includes it.
+   size_meta=24+struct.unpack('>Q',head[12:20])[0]
+   size_meta_range=size_meta+struct.unpack('>I',head[20:24])[0]
    assert int(props['METADATA_SIZE'])==size_meta
    h=hashlib.sha256(head);mh=hashlib.sha256(head);pos=len(head)
    while chunk:=f.read(8*1024*1024):
@@ -30,7 +33,7 @@ def inspect(path):
     raw.seek(item.header_offset);hdr=raw.read(30);n,e=struct.unpack('<HH',hdr[26:30]);offsets[item.filename]=(item.header_offset+30+n+e,item.file_size,item.compress_type)
    for spec in meta['ota-property-files'].strip().split(','):
     name,offset,length=spec.split(':');offset,length=int(offset),int(length)
-    if name=='payload_metadata.bin':assert (offset,length)==(offsets['payload.bin'][0],size_meta)
+    if name=='payload_metadata.bin':assert (offset,length)==(offsets['payload.bin'][0],size_meta_range)
     else:
      actual=next((v for k,v in offsets.items() if k==name or k.rsplit('/',1)[-1]==name),None)
      assert actual and actual==(offset,length,zipfile.ZIP_STORED),'Invalid streaming range: '+name

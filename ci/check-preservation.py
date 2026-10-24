@@ -14,12 +14,15 @@ for name in ['backuptool_ab.sh','backuptool_postinstall.sh']:
 ab=(s/'vendor/lineage/prebuilt/common/bin/backuptool_ab.sh').read_text()
 assert '/data/adb/magisk/addon.d.sh' in ab and '99-magisk.sh' in ab
 assert 'run_stages pre-restore restore post-restore ||' in ab
+assert '[ -f "$C/.preservation-ok" ] || return 1' in ab
+functions=(s/'vendor/lineage/prebuilt/common/bin/backuptool_ab.functions').read_text()
+assert 'cmp -s "$1" "$2"' in functions and 'preservation_failure()' in functions
 target=s/'out/target/product/asphalt/obj/PACKAGING/target_files_intermediates/lineage_asphalt-target_files'
 if a.candidate:
  report=json.loads((a.candidate/'ota-inspection.json').read_text())
  meta=report['metadata'];assert meta.get('ota-wipe','no') not in ['yes','true','1'] and meta.get('ota-downgrade','no') not in ['yes','true','1']
  assert meta['ota-type']=='AB'
- for n in ['backuptool_ab.sh','backuptool_postinstall.sh']:
+ for n in ['backuptool_ab.sh','backuptool_postinstall.sh','backuptool_ab.functions']:
   assert (target/'SYSTEM/bin'/n).read_bytes()==(s/'vendor/lineage/prebuilt/common/bin'/n).read_bytes(),n+' packaged script mismatch'
  engine=(target/'SYSTEM/bin/update_engine').read_bytes();assert b'Running addon.d backup/restore for system' in engine
  for lib in ['SYSTEM/lib64/libcodec2_client.so','SYSTEM/lib/libcodec2_client.so']:

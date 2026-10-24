@@ -1,5 +1,67 @@
+diff --git a/prebuilt/common/bin/backuptool_ab.functions b/prebuilt/common/bin/backuptool_ab.functions
+index edb7a91e..cc1be82a 100644
+--- a/prebuilt/common/bin/backuptool_ab.functions
++++ b/prebuilt/common/bin/backuptool_ab.functions
+@@ -7,22 +7,53 @@ export S=/system
+ export C=/postinstall/tmp/backupdir
+ export backuptool_ab=true
+ 
++preservation_failure() {
++  # A script may ignore a failed copy/move or hide it in a pipeline.
++  # Removing an existing success marker also works when storage is full.
++  rm -f "$C/.preservation-ok"
++  echo "addon.d file preservation failed" >&2
++  return 1
++}
++
+ copy_file() {
+   old=`umask`
+   umask 0322
+-  mkdir -m755 -p `dirname $2`
++  mkdir -m755 -p `dirname $2` || { umask "$old"; preservation_failure; return 1; }
+   umask "$old"
+ 
+-  cp -dp --preserve=a "$1" "$2"
++  cp -dp --preserve=a "$1" "$2" || { preservation_failure; return 1; }
++  if [ -L "$1" ]; then
++    [ -L "$2" ] && [ "$(readlink "$1")" = "$(readlink "$2")" ] ||
++      { preservation_failure; return 1; }
++  else
++    [ -f "$2" ] && [ ! -L "$2" ] && cmp -s "$1" "$2" ||
++      { preservation_failure; return 1; }
++  fi
+ }
+ 
+ move_file() {
+   old=`umask`
+   umask 0322
+-  mkdir -m755 -p `dirname $2`
++  mkdir -m755 -p `dirname $2` || { umask "$old"; preservation_failure; return 1; }
+   umask "$old"
+ 
+-  mv "$1" "$2"
++  if [ -L "$1" ]; then
++    expected=$(readlink "$1") || { preservation_failure; return 1; }
++    kind=symlink
++  else
++    expected=$(sha256sum "$1" | cut -d' ' -f1)
++    [ -n "$expected" ] || { preservation_failure; return 1; }
++    kind=file
++  fi
++  mv "$1" "$2" || { preservation_failure; return 1; }
++  if [ "$kind" = symlink ]; then
++    [ -L "$2" ] && [ "$(readlink "$2")" = "$expected" ] ||
++      { preservation_failure; return 1; }
++  else
++    [ -f "$2" ] && [ ! -L "$2" ] &&
++      [ "$(sha256sum "$2" | cut -d' ' -f1)" = "$expected" ] ||
++      { preservation_failure; return 1; }
++  fi
+ }
+ 
+ backup_file() {
 diff --git a/prebuilt/common/bin/backuptool_ab.sh b/prebuilt/common/bin/backuptool_ab.sh
-index b5741d83..a9e7c956 100755
+index b5741d83..c1ad176c 100755
 --- a/prebuilt/common/bin/backuptool_ab.sh
 +++ b/prebuilt/common/bin/backuptool_ab.sh
 @@ -38,6 +38,18 @@ preserve_addon_d() {
@@ -21,9 +83,12 @@ index b5741d83..a9e7c956 100755
  }
  
  # Restore /postinstall/system/addon.d from /postinstall/tmp/addon.d
-@@ -82,9 +94,9 @@ if [ -d /postinstall/tmp/addon.d/ ]; then
+@@ -81,11 +93,15 @@ if [ -d /postinstall/tmp/addon.d/ ]; then
+     fi
  
      for stage in $@; do
++      mkdir -p "$C" || return 1
++      : > "$C/.preservation-ok" || return 1
        if [ $v -ge 3 ]; then
 -        $script $stage
 +        $script $stage || return $?
@@ -31,9 +96,12 @@ index b5741d83..a9e7c956 100755
 -        ADDOND_VERSION=2 $script $stage
 +        ADDOND_VERSION=2 $script $stage || return $?
        fi
++      [ -f "$C/.preservation-ok" ] || return 1
++      rm -f "$C/.preservation-ok"
      done
    done
-@@ -175,8 +187,8 @@ case "$1" in
+ fi
+@@ -175,8 +191,8 @@ case "$1" in
    backup)
      if check_prereq; then
        mkdir -p $C
@@ -44,7 +112,7 @@ index b5741d83..a9e7c956 100755
        umount_extra $all_V3_partitions
      else
        cleanup
-@@ -184,7 +196,7 @@ case "$1" in
+@@ -184,7 +200,7 @@ case "$1" in
    ;;
    restore)
      if check_prereq; then

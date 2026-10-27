@@ -3,6 +3,16 @@
 from pathlib import Path
 import base64,hashlib,json,os,struct,subprocess,sys,tempfile,zipfile
 bundle=Path(__file__).resolve().parents[1]
+
+# Resource settings must fail before a job can start source synchronization or
+# compilation; environment overrides cannot silently restore the old -j12/28G.
+profile=str(bundle/'ci/resource-profile.sh')
+profile_env={k:v for k,v in os.environ.items() if k not in ['Y700_BUILD_JOBS','Y700_SYNC_JOBS','Y700_GO_MEMORY_LIMIT','Y700_CCACHE_MAXSIZE']}
+defaults=subprocess.run(['bash','-c','source "$1" && test "$Y700_BUILD_JOBS" = 6 && test "$Y700_SYNC_JOBS" = 4 && test "$Y700_GO_MEMORY_LIMIT" = 20GiB','profile-check',profile],capture_output=True,env=profile_env)
+assert defaults.returncode==0
+for key,value in [('Y700_BUILD_JOBS','0'),('Y700_BUILD_JOBS','12'),('Y700_SYNC_JOBS','9'),('Y700_GO_MEMORY_LIMIT','28GiB'),('Y700_CCACHE_MAXSIZE','800G')]:
+ rejected=subprocess.run(['bash','-c','source "$1"','profile-check',profile],capture_output=True,env={**profile_env,key:value})
+ assert rejected.returncode!=0,(key,value)
 def run(*args,ok=True):
  r=subprocess.run(args,capture_output=True,text=True)
  assert (r.returncode==0)==ok,(args,r.stdout,r.stderr)

@@ -5,6 +5,7 @@ set -eo pipefail
 mode=${1:-baseline}
 case "$mode" in baseline|tracking) ;; *) echo 'Invalid build mode'; exit 2;; esac
 bundle=$(cd "$(dirname "$0")/.." && pwd)
+source "$bundle/ci/resource-profile.sh"
 base=/home/builder/y700-lineage24
 inputs=/home/builder/y700-inputs
 mkdir -p "$base/source" "$base/logs" "$base/candidates"
@@ -24,9 +25,10 @@ python3 "$bundle/ci/restore-reviewed-tree.py" --bundle "$bundle" --source "$PWD"
 python3 "$bundle/ci/prepare-manifest.py" --bundle "$bundle" --source "$PWD" --mode "$mode"
 repo init -m y700-ci.xml
 state syncing
-repo sync -c -j8 --retry-fetches=3 --no-clone-bundle --no-tags --fail-fast
+repo sync -c -j"$Y700_SYNC_JOBS" --retry-fetches=3 --no-clone-bundle --no-tags --fail-fast
 repo manifest -r -o "$base/logs/$run-resolved.xml"
 state patching
+python3 "$bundle/ci/check-sandbox.py" --source "$PWD"
 python3 "$bundle/ci/apply-reviewed-patches.py" --bundle "$bundle" --source "$PWD" --mode "$mode"
 python3 "$bundle/ci/check-preservation.py" --source "$PWD"
 python3 "$bundle/ci/test-preservation.py" --source "$PWD"
@@ -43,12 +45,17 @@ export USE_CCACHE=1 CCACHE_DIR=/home/builder/.cache/y700-ccache
 export GOCACHE=/home/builder/.cache/go-build
 mkdir -p "$GOCACHE"
 [ -w "$GOCACHE" ] || { echo 'Go build cache is not writable by builder'; exit 1; }
-export SOONG_BUILDER_GOGC=50 SOONG_BUILDER_GOMEMLIMIT=28GiB
-ccache -M 80G
+export SOONG_BUILDER_GOGC=50 SOONG_BUILDER_GOMEMLIMIT="$Y700_GO_MEMORY_LIMIT"
+printf 'Build profile: jobs=%s sync_jobs=%s Go=%s ccache=%s\n' "$Y700_BUILD_JOBS" "$Y700_SYNC_JOBS" "$Y700_GO_MEMORY_LIMIT" "$Y700_CCACHE_MAXSIZE"
+ccache -M "$Y700_CCACHE_MAXSIZE"
 source build/envsetup.sh
 breakfast asphalt userdebug
 state building
-m -j12 bacon
+m -j"$Y700_BUILD_JOBS" bacon
+if grep -Fq 'Build sandboxing disabled due to nsjail error.' "$base/logs/$run.log"; then
+  echo 'Rejecting build: Soong reported a failed native sandbox.'
+  exit 1
+fi
 state checking
 out=out/target/product/asphalt
 mapfile -t zips < <(find "$out" -maxdepth 1 -name 'lineage-24.0-*-asphalt.zip' -newer "$base/logs/$run-resolved.xml" -type f)

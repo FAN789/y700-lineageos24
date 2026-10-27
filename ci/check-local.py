@@ -64,3 +64,4 @@ with tempfile.TemporaryDirectory() as d:
   path=root/(name+'.zip');fixture(path,wrong_size,wrong_hash)
   run(sys.executable,str(bundle/'ci/ota-feed.py'),'inspect',str(path),'--output',str(root/(name+'.json')),ok=name=='valid')
 print('PASS: patch safety, wrong-device rejection, upstream EOF, signed-metadata size/hash and streaming range')
+run(sys.executable,str(bundle/'ci/test-ota-selection.py'))

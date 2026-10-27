@@ -58,7 +58,8 @@ if grep -Fq 'Build sandboxing disabled due to nsjail error.' "$base/logs/$run.lo
 fi
 state checking
 out=out/target/product/asphalt
-mapfile -t zips < <(find "$out" -maxdepth 1 -name 'lineage-24.0-*-asphalt.zip' -newer "$base/logs/$run-resolved.xml" -type f)
+ota=$(python3 "$bundle/ci/select-ota.py" --product-out "$out" --newer-than "$base/logs/$run-resolved.xml")
+zips=("$ota")
 [ "${#zips[@]}" = 1 ] || { echo 'Expected exactly one new OTA'; exit 1; }
 dest="$base/candidates/$run"
 mkdir -p "$dest"

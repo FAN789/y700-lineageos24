@@ -31,6 +31,7 @@ state patching
 python3 "$bundle/ci/check-sandbox.py" --source "$PWD"
 python3 "$bundle/ci/apply-reviewed-patches.py" --bundle "$bundle" --source "$PWD" --mode "$mode"
 python3 "$bundle/ci/check-ucsi-typec3.py" --source "$PWD"
+python3 "$bundle/ci/check-recovery-adsp.py" --source "$PWD"
 python3 "$bundle/ci/check-preservation.py" --source "$PWD"
 python3 "$bundle/ci/test-preservation.py" --source "$PWD"
 python3 "$bundle/ci/test-postinstall-routing.py" --source "$PWD"
@@ -71,6 +72,7 @@ python3 "$bundle/ci/check-preservation.py" --source "$PWD" --candidate "$dest"
 python3 "$bundle/ci/validate-native.py" --source "$PWD" --candidate "$dest" --pipeline-lock-fd 9
 python3 "$bundle/ci/check-kernel-preservation.py" --source "$PWD" --candidate "$dest"
 python3 "$bundle/ci/check-ucsi-typec3.py" --source "$PWD" --candidate "$dest" --target-files "$out/obj/PACKAGING/target_files_intermediates/lineage_asphalt-target_files" --previous-target-files /home/builder/y700-usbfix-20261028/signed/target-files
+python3 "$bundle/ci/check-recovery-adsp.py" --source "$PWD" --candidate "$dest" --target-files "$out/obj/PACKAGING/target_files_intermediates/lineage_asphalt-target_files" --previous-target-files /home/builder/y700-ucsi-typec3-20261028/signed/target-files
 sha256sum "$dest/"*.zip > "$dest/SHA256SUMS"
 # No release promotion: private signing/migration and device acceptance remain mandatory.
 state candidate-needs-acceptance

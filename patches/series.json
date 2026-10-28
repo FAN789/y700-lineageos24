@@ -43,5 +43,10 @@
     "project": "kernel/lenovo/sm8475",
     "patch": "0011-asphalt-ucsi-typec3-data-mux.patch",
     "base_commit": "9b7833ce5db1a9914dc5e5e06d1a0cccfdd5c73b"
+  },
+  {
+    "project": "device/lenovo/sm8475-common",
+    "patch": "0012-asphalt-recovery-adsp-typec-init.patch",
+    "base_commit": "672e1ed4b6701aba913ad2d158ee26338f92bc3c"
   }
 ]

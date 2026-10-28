@@ -1,0 +1,44 @@
+--- a/init/etc/init.qcom.recovery.rc
++++ b/init/etc/init.qcom.recovery.rc
+@@ -43,3 +43,16 @@
+ # Both USB-C ports use the bootloader-declared controller; keep USB test drivers.
+ on property:sys.usb.controller=dummy_udc.0 && property:ro.boot.usbcontroller=a600000.dwc3
+     setprop sys.usb.controller ${ro.boot.usbcontroller}
++
++# The PMIC GLINK Type-C service is provided by the signed stock ADSP firmware.
++# Recovery does not run the normal vendor ADSP/audio startup services. Without
++# it only the mux default (C1) enumerates; no UCSI partner callbacks reach C2.
++# Add a search prefix, keeping the kernel's normal fallback paths intact.
++on fs && property:ro.product.device=asphalt
++    mkdir /firmware 0755 root root
++    wait /dev/block/by-name/modem${ro.boot.slot_suffix} 5
++    mount vfat /dev/block/by-name/modem${ro.boot.slot_suffix} /firmware ro nosuid nodev noexec shortname=lower,uid=1000,gid=1000,dmask=227,fmask=337,context=u:object_r:firmware_file:s0
++    wait /firmware/image/adsp.mdt 5
++    write /sys/module/firmware_class/parameters/path /firmware/image
++    wait /sys/class/remoteproc/remoteproc1/state 5
++    write /sys/class/remoteproc/remoteproc1/state start
+--- a/sepolicy/vendor/genfs_contexts
++++ b/sepolicy/vendor/genfs_contexts
+@@ -46,3 +46,9 @@
+ # Wakeup
+ genfscon sysfs /devices/platform/soc/a600000.ssusb/a600000.dwc3/wakeup                    u:object_r:sysfs_wakeup:s0
+ genfscon sysfs /devices/platform/soc/a84000.i2c/i2c-3/3-0028/wakeup/wakeup31              u:object_r:sysfs_wakeup:s0
++
++# Recovery only: label the two exact initialization controls, not generic sysfs.
++recovery_only(`
++genfscon sysfs /module/firmware_class/parameters/path u:object_r:vendor_sysfs_recovery_firmware_path:s0
++genfscon sysfs /devices/platform/soc/3000000.remoteproc-adsp/remoteproc/remoteproc1/state u:object_r:vendor_sysfs_recovery_adsp_state:s0
++')
+diff --git a/sepolicy/vendor/recovery_adsp.te b/sepolicy/vendor/recovery_adsp.te
+new file mode 100644
+--- /dev/null
++++ b/sepolicy/vendor/recovery_adsp.te
+@@ -0,0 +1,8 @@
++# The normal Android policy and all kernel modules remain unchanged.
++recovery_only(`
++type vendor_sysfs_recovery_firmware_path, fs_type, sysfs_type;
++type vendor_sysfs_recovery_adsp_state, fs_type, sysfs_type;
++
++# These types label only the firmware search parameter and the ADSP state node.
++allow init { vendor_sysfs_recovery_firmware_path vendor_sysfs_recovery_adsp_state }:file { getattr open write };
++')

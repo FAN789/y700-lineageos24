@@ -1,1 +1,18 @@
-[]
+[
+  {
+    "datetime": 1793184607,
+    "version": "24.0",
+    "type": "UNOFFICIAL",
+    "files": [
+      {
+        "filename": "lineage-24.0-20261028-UNOFFICIAL-asphalt.zip",
+        "os_patch_level": "2026-10-01",
+        "os_sdk_level": 37,
+        "ota_property_files": "payload_metadata.bin:4941:125654,payload.bin:4941:1142577797,payload_properties.txt:1142582796:156,apex_info.pb:2370:1372,care_map.pb:3789:1105,metadata:69:721,metadata.pb:858:1464                        ",
+        "sha256": "4e5dc3986d85e83015576b33e041772c5954b1e4e32691c868d5722688694cc8",
+        "size": 1142585821,
+        "url": "https://github.com/FAN789/y700-lineageos24/releases/download/lineage-24.0-20261028-1793184607-asphalt/lineage-24.0-20261028-UNOFFICIAL-asphalt.zip"
+      }
+    ]
+  }
+]

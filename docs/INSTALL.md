@@ -6,8 +6,12 @@
 2. PRC 设备应先核实 A/B 两槽的 ABL 区域和签名版本兼容性。测试机曾因槽间 ABL 不一致出现红色系统不兼容并关机。此错误不应通过清空数据、反复安装 OTA 或随机降级全套固件解决。缺少可验证的原机回退条件时停止。
 3. 自行保留原机备份，尤其 GPT、ABL、持久化/NV/校准分区及原厂完整软件，并验证备份完整性。它们可能含私密数据，不能上传本项目。备份不代表恢复流程已经实测；RPMB/用户数据等范围需另行确认。
 4. 从 Releases 下载同一版本的 OTA 和所需 Recovery/bootstrap 镜像；按 SHA256SUMS 检查。不要混用不同版本、不同设备镜像。
-5. 已运行兼容 Lineage Recovery 的设备：在 Recovery 选择 Apply update → Apply from ADB，再在电脑执行 `adb sideload lineage-24.0-20261014-UNOFFICIAL-asphalt.zip`。确认完成后，不安装附加包时可选 No，再 Reboot system now。
+5. **仅已处于本项目相同专用签名渠道**、运行兼容 Lineage Recovery 的设备：在 Recovery 选择 Apply update → Apply from ADB，再在电脑执行 `adb sideload lineage-24.0-20261028-UNOFFICIAL-asphalt.zip`。确认完成后，不安装附加包时可选 No，再 Reboot system now。
 6. 从原厂首次迁移需兼容的 Recovery/bootstrap 安装和通常的数据格式化；本项目仅提供镜像与验证证据，不能把一台设备的槽位/GPT/EDL地址当作通用刷机命令。已有兼容系统的标准 OTA 更新不需要为本项目重新分区。
 7. Google Apps 不内置；如自行安装，遵循相应 Android/ARM64 包和 LineageOS 安装时序，已首次启动后的添加可能需要恢复出厂。不要把缺少 GApps 当作固件刷入失败。
 
 回退需要针对本人原机、现有启动器版本与数据状态制定；不要随意切到未同步的旧槽、回锁或覆盖校准分区。发生红色不兼容、持续重启或维护接口丢失时，先保留证据并停止重复写入。
+
+20261028 版本已改用专用发布证书。旧公开 test-key 版、其他社区签名版和原厂系统不属于可直接保留数据覆盖的来源。请先核对 [本次发布的签名边界](RELEASE-20261028.md)。
+
+本次 Release 只分发 OTA 和校验记录。首次安装所需同版本 bootstrap 镜像应从该 OTA／对应构建输入提取并单独验证，不能从已退役旧版混取镜像。

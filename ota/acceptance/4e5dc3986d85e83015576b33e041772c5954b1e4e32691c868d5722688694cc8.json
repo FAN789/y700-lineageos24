@@ -1,0 +1,37 @@
+{
+  "sha256": "4e5dc3986d85e83015576b33e041772c5954b1e4e32691c868d5722688694cc8",
+  "incremental": "1793184607",
+  "target": "TB320FC PRC / asphalt",
+  "scope": "Single-device acceptance; not official certification or universal hardware coverage",
+  "checks": {
+    "private_release_signatures": true,
+    "payload_partitions_capacity": true,
+    "avb": true,
+    "selinux_vintf": true,
+    "hardware": true,
+    "key_migration": true,
+    "root_persistence": true
+  },
+  "evidence": {
+    "native_offline_checks": 15,
+    "payload_partitions": 12,
+    "apk_identity_continuity": 129,
+    "active_apex_key_continuity": 37,
+    "kernel_and_all_711_modules_unchanged": true,
+    "standard_ab_install_and_return_to_system": true,
+    "both_usb_c_ports_recovery_cold_sideload_original_hub": true,
+    "selinux_enforcing": true,
+    "no_new_fatal_crash_observed": true,
+    "hardware_video_h264_hevc_encode_decode": true,
+    "prior_user_wifi_cameras_sound_rotation_double_tap_passed": true,
+    "additional_manual_camera_touch_audio_test_this_release": false,
+    "private_key_transition_previously_accepted_same_identity_this_update": true
+  },
+  "security": {
+    "unofficial": true,
+    "userdebug": true,
+    "bootloader_unlocked": true,
+    "avb_flags": 3,
+    "unmodified_ota_no_root_or_gapps_bundled": true
+  }
+}

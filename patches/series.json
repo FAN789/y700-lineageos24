@@ -33,5 +33,10 @@
     "project": "vendor/lineage",
     "patch": "0009-lineage-preserve-installed-magisk.patch",
     "base_commit": "b3d63c6da0df32d283ce339b48f8fd5bacce6660"
+  },
+  {
+    "project": "device/lenovo/sm8475-common",
+    "patch": "0010-asphalt-physical-usb-controller-init.patch",
+    "base_commit": "672e1ed4b6701aba913ad2d158ee26338f92bc3c"
   }
 ]

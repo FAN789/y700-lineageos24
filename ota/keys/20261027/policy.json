@@ -1,0 +1,19 @@
+{
+  "schema": 1,
+  "purpose": "y700-private-release",
+  "ota_certificate": {
+    "file": "releasekey.x509.pem",
+    "sha256": "e8eb68bcb912a05db2ec723e6003d363e30da88e2b69f77d93d7e03609ef8a2b"
+  },
+  "avb_root_public_key": {
+    "file": "avb_root.public.pem",
+    "sha256": "ab06a69bca0293f72db652939d77be440252795337112fb0d74644e91628e6d8"
+  },
+  "avb_chain_public_key": {
+    "file": "avb_chain.public.pem",
+    "sha256": "9c115353fdcdec2a2c03292734e73db23e459de4322c5be794edabed32584daf"
+  },
+  "avb_flags": 3,
+  "bootloader_relock_supported": false,
+  "first_device_migration_accepted": false
+}

@@ -1,0 +1,37 @@
+--- a/init/etc/init.target.rc
++++ b/init/etc/init.target.rc
+@@ -90,8 +90,6 @@
+     chmod 0660 /sys/devices/platform/soc/990000.spi/spi_master/spi0/spi0.0/trusted_touch_enable
+     chown system /sys/devices/system/cpu/hyp_core_ctl/enable
+     chown system /sys/devices/system/cpu/hyp_core_ctl/hcc_min_freq
+-    #USB controller configuration
+-    setprop vendor.usb.controller a600000.dwc3
+ 
+ on property:vendor.display.lcd_density=560
+    setprop dalvik.vm.heapgrowthlimit 256m
+@@ -169,4 +167,12 @@
+ 
+ on property:sys.boot_completed=1
+     # Enable PowerHAL hint processing
+-    setprop vendor.powerhal.init 1
+\ No newline at end of file
++    setprop vendor.powerhal.init 1
++# USB HAL boot actions consume this property before the regular boot actions.
++on early-init
++    setprop vendor.usb.controller a600000.dwc3
++
++# Generic init may detect the built-in dummy UDC before the physical DWC3 probes.
++# Both USB-C ports use the bootloader-declared controller; keep USB test drivers.
++on property:sys.usb.controller=dummy_udc.0 && property:ro.boot.usbcontroller=a600000.dwc3
++    setprop sys.usb.controller ${ro.boot.usbcontroller}
+--- a/init/etc/init.qcom.recovery.rc
++++ b/init/etc/init.qcom.recovery.rc
+@@ -38,3 +38,8 @@
+ on fs
+     wait /dev/block/platform/soc/${ro.boot.bootdevice}
+     symlink /dev/block/platform/soc/${ro.boot.bootdevice} /dev/block/bootdevice
++
++# Generic init may detect the built-in dummy UDC before the physical DWC3 probes.
++# Both USB-C ports use the bootloader-declared controller; keep USB test drivers.
++on property:sys.usb.controller=dummy_udc.0 && property:ro.boot.usbcontroller=a600000.dwc3
++    setprop sys.usb.controller ${ro.boot.usbcontroller}

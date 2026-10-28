@@ -2,7 +2,7 @@
 """Require preservation code, unchanged safety boundaries and packaged output."""
 from pathlib import Path
 import argparse,json,hashlib
-p=argparse.ArgumentParser();p.add_argument('--source',type=Path,required=True);p.add_argument('--candidate',type=Path);a=p.parse_args();s=a.source
+p=argparse.ArgumentParser();p.add_argument('--source',type=Path,required=True);p.add_argument('--candidate',type=Path);p.add_argument('--target-files',type=Path);a=p.parse_args();s=a.source
 cpp=s/'system/update_engine/payload_consumer/postinstall_runner_action.cc'
 assert 'if (partition.name == "system")' in cpp.read_text()
 assert 'backuptool_failed = true;' in cpp.read_text()
@@ -17,7 +17,7 @@ assert 'run_stages pre-restore restore post-restore ||' in ab
 assert '[ -f "$C/.preservation-ok" ] || return 1' in ab
 functions=(s/'vendor/lineage/prebuilt/common/bin/backuptool_ab.functions').read_text()
 assert 'cmp -s "$1" "$2"' in functions and 'preservation_failure()' in functions
-target=s/'out/target/product/asphalt/obj/PACKAGING/target_files_intermediates/lineage_asphalt-target_files'
+target=a.target_files if a.target_files else s/'out/target/product/asphalt/obj/PACKAGING/target_files_intermediates/lineage_asphalt-target_files'
 if a.candidate:
  report=json.loads((a.candidate/'ota-inspection.json').read_text())
  meta=report['metadata'];assert meta.get('ota-wipe','no') not in ['yes','true','1'] and meta.get('ota-downgrade','no') not in ['yes','true','1']

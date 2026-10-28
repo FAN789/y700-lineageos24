@@ -66,3 +66,6 @@ with tempfile.TemporaryDirectory() as d:
 print('PASS: patch safety, wrong-device rejection, upstream EOF, signed-metadata size/hash and streaming range')
 run(sys.executable,str(bundle/'ci/test-signing-policy.py'))
 run(sys.executable,str(bundle/'ci/test-ota-selection.py'))
+
+run(sys.executable,str(bundle/'ci/test-reviewed-series.py'))
+run(sys.executable,str(bundle/'ci/test-ucsi-typec3.py'))

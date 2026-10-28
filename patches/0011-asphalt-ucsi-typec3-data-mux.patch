@@ -1,0 +1,12 @@
+--- a/drivers/usb/typec/ucsi/ucsi_glink.c
++++ b/drivers/usb/typec/ucsi/ucsi_glink.c
+@@ -219,7 +219,8 @@
+ 
+ 	printk("change=0x%x,flags=0x%x,con=%d",change,flags,con);
+ 	printk("conn_partner_type=%d,partner_usb=%d,conn_power_mode =%d",conn_partner_type,partner_usb,conn_power_mode);
+-	if(con!=0 && change!=0 && partner_usb == 1&&(conn_partner_type==1||conn_partner_type==2)&&(conn_power_mode==4||conn_power_mode==1))
++	if(con!=0 && change!=0 && partner_usb == 1&&(conn_partner_type==1||conn_partner_type==2)&&(conn_power_mode==4||conn_power_mode==1||
++		 conn_power_mode==UCSI_CONSTAT_PWR_OPMODE_TYPEC3_0))
+ 	{
+ 		if(con==1){
+ 			C1_d_present = 1;

@@ -1,0 +1,198 @@
+--- a/res/values/y700_dualnet.xml
++++ b/res/values/y700_dualnet.xml
+@@ -2,18 +2,13 @@
+     <string name="y700_dualnet_title">Wi-Fi and Ethernet</string>
+     <string name="y700_dualnet_mode">Internet connection</string>
+     <string name="y700_dualnet_wifi">Wi-Fi</string>
+-    <string name="y700_dualnet_hosts">Devices reached over Ethernet</string>
+-    <string name="y700_dualnet_hosts_hint">One device IPv4 address per line</string>
+-    <string name="y700_dualnet_hosts_summary">Keep Internet on your preferred connection; reach these devices over Ethernet</string>
+-    <string name="y700_dualnet_hosts_help">Automatic chooses an available uplink. Ethernet or Wi-Fi uses the selected interface, falling back when disconnected. Enter up to 32 device IPv4 addresses, one per line. Configure an Ethernet address in the device subnet first. Entries also apply to native processes. VPN and explicit app network choices take precedence. DNS follows the Internet connection.</string>
+-    <string name="y700_dualnet_invalid_hosts">Use at most 32 valid device IPv4 addresses. Do not enter URLs, subnets or hostnames.</string>
+-    <string name="y700_dualnet_apply_failed">Could not apply device routes; check the connection status</string>
++    <string name="y700_dualnet_apply_failed">Could not apply network settings; check the connection status</string>
+     <string name="y700_dualnet_status">Current connections</string>
+     <string name="y700_dualnet_no_default">No Wi-Fi or Ethernet Internet connection</string>
+     <string name="y700_dualnet_waiting">Waiting for the system network service</string>
+     <string name="y700_dualnet_not_validated">The selected connection has not passed Internet validation</string>
+-    <string name="y700_dualnet_vpn_paused">Device exceptions are paused while a VPN is connected</string>
+-    <string name="y700_dualnet_live_status">Internet: %1$s\nWi-Fi: %2$s\nEthernet: %3$s\nDevice rules: %4$d active, %5$d waiting for a matching Ethernet subnet or nonconflicting address</string>
++    <string name="y700_dualnet_live_status">Internet: %1$s\nWi-Fi: %2$s\nEthernet: %3$s</string>
+     <string-array name="y700_dualnet_modes"><item>Automatic</item><item>Ethernet</item><item>Wi-Fi</item></string-array>
+     <string-array name="y700_dualnet_mode_values" translatable="false"><item>auto</item><item>ethernet</item><item>wifi</item></string-array>
++    <string name="y700_wifi_connected_secondary">Connected (not the current Internet connection)</string>
+ </resources>
+--- a/res/values-zh-rCN/y700_dualnet.xml
++++ b/res/values-zh-rCN/y700_dualnet.xml
+@@ -2,17 +2,12 @@
+     <string name="y700_dualnet_title">双网协同</string>
+     <string name="y700_dualnet_mode">上网出口</string>
+     <string name="y700_dualnet_wifi">Wi-Fi</string>
+-    <string name="y700_dualnet_hosts">指定设备走有线</string>
+-    <string name="y700_dualnet_hosts_hint">每行一个设备 IPv4 地址</string>
+-    <string name="y700_dualnet_hosts_summary">保持优先网络上网，通过有线访问这些调试设备</string>
+-    <string name="y700_dualnet_hosts_help">自动模式选择可用出口；选择以太网或 Wi-Fi 后使用所选接口，断开时自动回退。每行填写一个设备 IPv4 地址，最多 32 个。请先为以太网配置与设备同网段的地址。规则同时适用于本机进程；VPN 和应用主动指定的网络保持优先。DNS 继续使用上网出口。</string>
+-    <string name="y700_dualnet_invalid_hosts">请填写最多 32 个有效的设备 IPv4 地址，不要填写网址、网段或主机名</string>
+-    <string name="y700_dualnet_apply_failed">设备路由未能生效，请查看连接状态</string>
++    <string name="y700_dualnet_apply_failed">网络设置未能生效，请查看连接状态</string>
+     <string name="y700_dualnet_status">当前连接状态</string>
+     <string name="y700_dualnet_no_default">当前无 Wi-Fi 或有线上网出口</string>
+     <string name="y700_dualnet_waiting">等待系统网络服务更新状态</string>
+     <string name="y700_dualnet_not_validated">当前出口尚未通过互联网检测</string>
+-    <string name="y700_dualnet_vpn_paused">VPN 连接期间暂停设备例外，保留 VPN 路由</string>
+-    <string name="y700_dualnet_live_status">上网出口：%1$s\nWi-Fi：%2$s\n有线：%3$s\n设备规则：%4$d 个已生效，%5$d 个等待匹配有线网段或消除本机地址冲突</string>
++    <string name="y700_dualnet_live_status">上网出口：%1$s\nWi-Fi：%2$s\n有线：%3$s</string>
+     <string-array name="y700_dualnet_modes"><item>自动</item><item>以太网</item><item>Wi-Fi</item></string-array>
++    <string name="y700_wifi_connected_secondary">已连接（非当前上网出口）</string>
+ </resources>
+--- a/res/xml/network_provider_settings.xml
++++ b/res/xml/network_provider_settings.xml
+@@ -79,12 +79,6 @@
+             android:persistent="false"
+             android:entries="@array/y700_dualnet_modes"
+             android:entryValues="@array/y700_dualnet_mode_values" />
+-        <EditTextPreference
+-            android:key="y700_dual_network_ethernet_hosts"
+-            android:title="@string/y700_dualnet_hosts"
+-            android:dialogTitle="@string/y700_dualnet_hosts"
+-            android:dialogMessage="@string/y700_dualnet_hosts_help"
+-            android:persistent="false" />
+         <Preference
+             android:key="y700_dual_network_status"
+             android:title="@string/y700_dualnet_status"
+--- a/src/com/android/settings/network/Y700DualNetworkPreferenceController.java
++++ b/src/com/android/settings/network/Y700DualNetworkPreferenceController.java
+@@ -8,9 +8,7 @@
+ import android.os.Looper;
+ import android.os.UserManager;
+ import android.provider.Settings;
+-import android.text.InputType;
+ import android.widget.Toast;
+-import androidx.preference.EditTextPreference;
+ import androidx.preference.ListPreference;
+ import androidx.preference.Preference;
+ import androidx.preference.PreferenceScreen;
+@@ -20,18 +18,14 @@
+ import com.android.settingslib.core.lifecycle.LifecycleObserver;
+ import com.android.settingslib.core.lifecycle.events.OnResume;
+ import com.android.settingslib.core.lifecycle.events.OnPause;
+-import java.util.LinkedHashSet;
+-import java.util.Set;
+ import org.json.JSONObject;
+ 
+ /** Owner-only UI; all routing is performed by ConnectivityService without a root app. */
+ public final class Y700DualNetworkPreferenceController extends BasePreferenceController
+         implements LifecycleObserver, OnResume, OnPause {
+     private static final String MODE = "y700_dual_network_mode";
+-    private static final String TARGETS = "y700_dual_network_ethernet_hosts";
+     private static final String STATUS = "y700_dual_network_status";
+     private ListPreference mMode;
+-    private EditTextPreference mTargets;
+     private Preference mStatus;
+     private final ContentObserver mObserver = new ContentObserver(new Handler(Looper.getMainLooper())) {
+         @Override public void onChange(boolean selfChange) { refresh(); }
+@@ -51,9 +45,8 @@
+         if (category != null) category.setVisible(isAvailable());
+         if (!isAvailable()) return;
+         mMode = screen.findPreference(MODE);
+-        mTargets = screen.findPreference(TARGETS);
+         mStatus = screen.findPreference(STATUS);
+-        if (mMode == null || mTargets == null || mStatus == null) return;
++        if (mMode == null || mStatus == null) return;
+         mMode.setOnPreferenceChangeListener((p, value) -> {
+             String mode = String.valueOf(value);
+             if (!mode.equals("auto") && !mode.equals("wifi") && !mode.equals("ethernet")) return false;
+@@ -61,45 +54,12 @@
+             if (!ok) notifyError(R.string.y700_dualnet_apply_failed);
+             return ok;
+         });
+-        mTargets.setOnBindEditTextListener(edit -> {
+-            edit.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_MULTI_LINE
+-                    | InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
+-            edit.setSingleLine(false);
+-            edit.setMinLines(3);
+-            edit.setHint(R.string.y700_dualnet_hosts_hint);
+-        });
+-        mTargets.setOnPreferenceChangeListener((p, value) -> {
+-            String normalized = normalizeHosts(String.valueOf(value));
+-            if (normalized == null) { notifyError(R.string.y700_dualnet_invalid_hosts); return false; }
+-            boolean ok = Settings.Global.putString(mContext.getContentResolver(), TARGETS, normalized);
+-            if (!ok) notifyError(R.string.y700_dualnet_apply_failed);
+-            // The observer supplies canonical text; do not persist the original unnormalized input.
+-            if (ok) mTargets.setText(normalized);
+-            return false;
+-        });
+         refresh();
+     }
+     private void notifyError(int text) { Toast.makeText(mContext, text, Toast.LENGTH_LONG).show(); }
+-    static String normalizeHosts(String value) {
+-        if (value.length() > 1024) return null;
+-        Set<String> hosts = new LinkedHashSet<>();
+-        for (String host : value.trim().split("[\\s,;]+")) {
+-            if (host.isEmpty()) continue;
+-            if (!host.matches("[0-9]{1,3}(\\.[0-9]{1,3}){3}")) return null;
+-            String[] parts = host.split("\\.");
+-            int first = Integer.parseInt(parts[0]);
+-            if (first == 0 || first == 127 || first >= 224) return null;
+-            for (String part : parts) {
+-                if (Integer.parseInt(part) > 255 || (part.length() > 1 && part.startsWith("0"))) return null;
+-            }
+-            hosts.add(host);
+-            if (hosts.size() > 32) return null;
+-        }
+-        return String.join("\n", hosts);
+-    }
+     @Override public void onResume() {
+         if (!isAvailable()) return;
+-        for (String key : new String[] {MODE, TARGETS, STATUS}) {
++        for (String key : new String[] {MODE, STATUS}) {
+             mContext.getContentResolver().registerContentObserver(
+                     Settings.Global.getUriFor(key), false, mObserver);
+         }
+@@ -113,25 +73,19 @@
+         return mContext.getString(R.string.y700_dualnet_no_default);
+     }
+     private void refresh() {
+-        if (mMode == null || mTargets == null || mStatus == null) return;
++        if (mMode == null || mStatus == null) return;
+         String mode = Settings.Global.getString(mContext.getContentResolver(), MODE);
+         if (!"wifi".equals(mode) && !"ethernet".equals(mode)) mode = "auto";
+         mMode.setValue(mode);
+         mMode.setSummary(mMode.getEntry());
+-        String hosts = Settings.Global.getString(mContext.getContentResolver(), TARGETS);
+-        hosts = hosts == null ? "" : hosts;
+-        mTargets.setText(hosts);
+-        mTargets.setSummary(hosts.isEmpty() ? mContext.getString(R.string.y700_dualnet_hosts_summary) : hosts);
+         try {
+             String raw = Settings.Global.getString(mContext.getContentResolver(), STATUS);
+             if (raw == null) throw new IllegalStateException("Waiting for system service");
+             JSONObject status = new JSONObject(raw);
+             String summary = mContext.getString(R.string.y700_dualnet_live_status,
+                     networkName(status.optString("default")),
+-                    status.optString("wifi", ""), status.optString("ethernet", ""),
+-                    status.optInt("active"), status.optInt("pending"));
++                    status.optString("wifi", ""), status.optString("ethernet", ""));
+             if (!status.optBoolean("validated")) summary += "\n" + mContext.getString(R.string.y700_dualnet_not_validated);
+-            if (status.optBoolean("vpn_paused")) summary += "\n" + mContext.getString(R.string.y700_dualnet_vpn_paused);
+             if (!status.optString("error").isEmpty()) summary += "\n" + mContext.getString(R.string.y700_dualnet_apply_failed);
+             mStatus.setSummary(summary);
+         } catch (Exception e) { mStatus.setSummary(R.string.y700_dualnet_waiting); }
+--- a/src/com/android/settings/wifi/WifiEntryPreference.java
++++ b/src/com/android/settings/wifi/WifiEntryPreference.java
+@@ -193,7 +193,15 @@
+             updateIcon(mShowX, mLevel);
+         }
+ 
+-        setSummary(mWifiEntry.getSummary(false /* concise */));
++        CharSequence summary = mWifiEntry.getSummary(false /* concise */);
++        // WifiTrackerLib omits Connected for validated secondary Wi-Fi links.
++        // Keep both the visible summary and accessibility description consistent.
++        if ("asphalt".equals(android.os.Build.DEVICE)
++                && mWifiEntry.getConnectedState() == WifiEntry.CONNECTED_STATE_CONNECTED
++                && !mWifiEntry.isDefaultNetwork() && TextUtils.isEmpty(summary)) {
++            summary = getContext().getString(com.android.settings.R.string.y700_wifi_connected_secondary);
++        }
++        setSummary(summary);
+         mContentDescription = buildContentDescription();
+     }
+ 

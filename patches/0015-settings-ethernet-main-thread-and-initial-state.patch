@@ -1,0 +1,103 @@
+--- a/src/com/android/settings/network/ethernet/EthernetInterface.kt
++++ b/src/com/android/settings/network/ethernet/EthernetInterface.kt
+@@ -29,6 +29,8 @@
+ import android.net.NetworkCapabilities
+ import android.net.NetworkRequest
+ import android.os.OutcomeReceiver
++import android.os.Handler
++import android.os.Looper
+ import android.util.Log
+ import androidx.core.content.ContextCompat
+ import com.google.common.annotations.VisibleForTesting
+@@ -44,6 +46,7 @@
+     private val connectivityManager: ConnectivityManager? =
+         context.getSystemService(ConnectivityManager::class.java)
+     private val executor = ContextCompat.getMainExecutor(context)
++    private val mainHandler = Handler(Looper.getMainLooper())
+     private val interfaceListeners = mutableListOf<EthernetInterfaceStateListener>()
+ 
+     private val TAG = "EthernetInterface"
+@@ -69,7 +72,7 @@
+     fun registerListener(listener: EthernetInterfaceStateListener) {
+         if (interfaceListeners.isEmpty()) {
+             ethernetManager?.addInterfaceStateListener(ContextCompat.getMainExecutor(context), this)
+-            connectivityManager?.registerNetworkCallback(networkRequest, networkCallback)
++            connectivityManager?.registerNetworkCallback(networkRequest, networkCallback, mainHandler)
+         }
+         interfaceListeners.add(listener)
+     }
+--- a/src/com/android/settings/network/ethernet/EthernetTrackerImpl.kt
++++ b/src/com/android/settings/network/ethernet/EthernetTrackerImpl.kt
+@@ -45,10 +45,18 @@
+     override fun registerInterfaceListener(
+         listener: EthernetTracker.EthernetInterfaceTrackerListener
+     ) {
+-        if (interfaceListeners.isEmpty()) {
++        if (interfaceListeners.contains(listener)) return
++        val startTracking = interfaceListeners.isEmpty()
++        interfaceListeners.add(listener)
++        if (startTracking) {
++            // Existing ports must be visible before the asynchronous initial callbacks arrive.
++            val present = ethernetManager?.interfaceList.orEmpty().toSet()
++            ethernetInterfaces.keys.retainAll(present)
++            for (id in present) {
++                ethernetInterfaces.getOrPut(id) { EthernetInterface(context, id) }
++            }
+             ethernetManager?.addInterfaceStateListener(ContextCompat.getMainExecutor(context), this)
+         }
+-        interfaceListeners.add(listener)
+         listener.onInterfaceListChanged(ethernetInterfaces.values.toList())
+     }
+ 
+@@ -62,18 +68,15 @@
+     }
+ 
+     override fun onInterfaceStateChanged(id: String, state: Int, role: Int, cfg: IpConfiguration?) {
+-        var interfacesChanged = false
+         if (!ethernetInterfaces.contains(id) && state != EthernetManager.STATE_ABSENT) {
+             ethernetInterfaces.put(id, EthernetInterface(context, id))
+-            interfacesChanged = true
+         } else if (ethernetInterfaces.contains(id) && state == EthernetManager.STATE_ABSENT) {
+             ethernetInterfaces.remove(id)
+-            interfacesChanged = true
+         }
+-        if (interfacesChanged) {
+-            for (listener in interfaceListeners) {
+-                listener.onInterfaceListChanged(ethernetInterfaces.values.toList())
+-            }
++        // Propagate the authoritative state/configuration before rendering the port.
++        ethernetInterfaces[id]?.onInterfaceStateChanged(id, state, role, cfg)
++        for (listener in interfaceListeners.toList()) {
++            listener.onInterfaceListChanged(ethernetInterfaces.values.toList())
+         }
+     }
+ 
+--- a/src/com/android/settings/network/NetworkProviderSettings.java
++++ b/src/com/android/settings/network/NetworkProviderSettings.java
+@@ -396,6 +396,8 @@
+     EthernetManager mEthernetManager;
+     @VisibleForTesting
+     EthernetTracker mEthernetTracker;
++    private final EthernetTracker.EthernetInterfaceTrackerListener mEthernetInterfaceListener =
++            this::onInterfaceListChanged;
+     @VisibleForTesting
+     PreferenceCategory mEthernetPreferenceCategory;
+ 
+@@ -769,7 +771,7 @@
+         mAirplaneModeEnabler.start();
+         mDataStateListener.start(mSubId);
+         if (com.android.settings.connectivity.Flags.ethernetSettings()) {
+-            mEthernetTracker.registerInterfaceListener(this::onInterfaceListChanged);
++            mEthernetTracker.registerInterfaceListener(mEthernetInterfaceListener);
+         }
+     }
+ 
+@@ -824,7 +826,7 @@
+         mAirplaneModeEnabler.stop();
+         mDataStateListener.stop();
+         if (com.android.settings.connectivity.Flags.ethernetSettings()) {
+-            mEthernetTracker.unregisterInterfaceListener(this::onInterfaceListChanged);
++            mEthernetTracker.unregisterInterfaceListener(mEthernetInterfaceListener);
+         }
+         super.onStop();
+     }

@@ -1,0 +1,128 @@
+--- a/src/com/android/settings/network/ethernet/EthernetInterfaceDetailsController.kt
++++ b/src/com/android/settings/network/ethernet/EthernetInterfaceDetailsController.kt
+@@ -23,6 +23,8 @@
+ import android.net.IpConfiguration
+ import android.net.LinkProperties
+ import android.net.StaticIpConfiguration
++import java.net.Inet4Address
++import java.net.NetworkInterface
+ import android.widget.ImageView
+ import androidx.lifecycle.Lifecycle
+ import androidx.lifecycle.LifecycleEventObserver
+@@ -57,6 +59,9 @@
+         context.getSharedPreferences("ethernet_preferences", Context.MODE_PRIVATE)
+ 
+     private var ipAddressPref: Preference? = null
++    private var gatewayPref: Preference? = null
++    private var dnsPref: Preference? = null
++    private var macAddressPref: Preference? = null
+ 
+     init {
+         lifecycle.addObserver(this)
+@@ -125,7 +130,7 @@
+         if (entityHeaderController != null) {
+             var interfaceName: String? = sharedPreferences.getString(preferenceId, null)
+             if (interfaceName == null) {
+-                interfaceName = "Ethernet"
++                interfaceName = mContext.getString(R.string.ethernet_interface_title, preferenceId)
+             }
+             entityHeaderController
+                 .setLabel(interfaceName)
+@@ -142,10 +147,11 @@
+         }
+ 
+         ipAddressPref = screen.findPreference<Preference>("ethernet_ip_address")
+-
+-        if (ethernetInterface?.getInterfaceState() == EthernetManager.STATE_LINK_UP) {
+-            initializeIpDetails()
+-        }
++        gatewayPref = screen.findPreference<Preference>("ethernet_gateway")
++        dnsPref = screen.findPreference<Preference>("ethernet_dns")
++        macAddressPref = screen.findPreference<Preference>("ethernet_mac_address")
++        fragment.activity?.setTitle(R.string.ethernet_config_title)
++        initializeIpDetails()
+     }
+ 
+     override fun interfaceUpdated() {
+@@ -163,16 +169,31 @@
+         val ipConfiguration: IpConfiguration? = ethernetInterface?.getConfiguration()
+         val linkProperties: LinkProperties? = ethernetInterface?.getLinkProperties()
+ 
+-        if (ipConfiguration?.getIpAssignment() == IpConfiguration.IpAssignment.STATIC) {
+-            val staticIp: StaticIpConfiguration? = ipConfiguration?.getStaticIpConfiguration()
+-            ipAddressPref?.setSummary(staticIp?.getIpAddress()?.getAddress()?.getHostAddress())
++        val staticIp = if (ipConfiguration?.getIpAssignment() == IpConfiguration.IpAssignment.STATIC) {
++            ipConfiguration.getStaticIpConfiguration()
+         } else {
+-            val addresses = linkProperties?.getAddresses()
+-            if (addresses != null && addresses.size > 0) {
+-                ipAddressPref?.setSummary(addresses?.first()?.getHostAddress())
+-            } else {
+-                ipAddressPref?.setSummary("")
++            null
++        }
++        val addresses = linkProperties?.getLinkAddresses().orEmpty()
++        ipAddressPref?.summary = if (addresses.isNotEmpty()) {
++            addresses.sortedBy { if (it.address is Inet4Address) 0 else 1 }
++                .joinToString("\n") { it.toString() }
++        } else {
++            staticIp?.ipAddress?.toString()
++        }
++        val gateway = linkProperties?.routes?.firstOrNull {
++            it.isDefaultRoute && it.gateway is Inet4Address
++        }?.gateway ?: staticIp?.gateway
++        gatewayPref?.summary = gateway?.hostAddress
++        val dns = linkProperties?.dnsServers?.takeIf { it.isNotEmpty() }
++            ?: staticIp?.dnsServers.orEmpty()
++        dnsPref?.summary = dns.joinToString("\n") { it.hostAddress ?: "" }
++        macAddressPref?.summary = try {
++            NetworkInterface.getByName(preferenceId)?.hardwareAddress?.joinToString(":") {
++                "%02x".format(it.toInt() and 0xff)
+             }
++        } catch (e: java.net.SocketException) {
++            null
+         }
+     }
+ }
+--- a/res/xml/ethernet_interface_details.xml
++++ b/res/xml/ethernet_interface_details.xml
+@@ -24,13 +24,6 @@
+         android:selectable="false"
+         android:order="-10000"/>
+ 
+-    <ListPreference
+-        android:key="metered"
+-        android:icon="@drawable/ic_attach_money_black_24dp"
+-        android:title="@string/wifi_metered_title"
+-        android:entries="@array/wifi_metered_entries"
+-        android:entryValues="@array/wifi_metered_values"
+-        android:defaultValue="0"/>
+ 
+    <!-- Network Details -->
+    <PreferenceCategory
+@@ -42,7 +35,7 @@
+                settings:enableCopying="true"/>
+         <Preference
+                android:key="ethernet_gateway"
+-               android:title="Gateway"
++               android:title="@string/ethernet_gateway"
+                android:selectable="false"
+                settings:enableCopying="true"/>
+        <Preference
+@@ -55,16 +48,6 @@
+                android:title="@string/ethernet_mac_address_title"
+                android:selectable="false"
+                settings:enableCopying="true"/>
+-       <Preference
+-               android:key="ethernet_tx_link_speed"
+-               android:title="@string/tx_ethernet_speed"
+-               android:selectable="false"
+-               settings:enableCopying="true"/>
+-       <Preference
+-               android:key="ethernet_rx_link_speed"
+-               android:title="@string/rx_ethernet_speed"
+-               android:selectable="false"
+-               settings:enableCopying="true"/>
+    </PreferenceCategory>
+ 
+ </PreferenceScreen>

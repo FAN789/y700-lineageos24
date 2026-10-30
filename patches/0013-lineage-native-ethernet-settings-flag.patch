@@ -1,0 +1,22 @@
+diff --git a/release/aconfig/cp2a/com.android.settings.connectivity/Android.bp b/release/aconfig/cp2a/com.android.settings.connectivity/Android.bp
+new file mode 100644
+--- /dev/null
++++ b/release/aconfig/cp2a/com.android.settings.connectivity/Android.bp
+@@ -0,0 +1,6 @@
++// Native Ethernet settings for this reviewed LineageOS release.
++aconfig_values {
++    name: "aconfig-values-lineage-cp2a-com.android.settings.connectivity-all",
++    package: "com.android.settings.connectivity",
++    srcs: ["*.textproto"],
++}
+diff --git a/release/aconfig/cp2a/com.android.settings.connectivity/ethernet_settings.textproto b/release/aconfig/cp2a/com.android.settings.connectivity/ethernet_settings.textproto
+new file mode 100644
+--- /dev/null
++++ b/release/aconfig/cp2a/com.android.settings.connectivity/ethernet_settings.textproto
+@@ -0,0 +1,6 @@
++flag_value {
++  package: "com.android.settings.connectivity"
++  name: "ethernet_settings"
++  state: ENABLED
++  permission: READ_ONLY
++}

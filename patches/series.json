@@ -48,5 +48,35 @@
     "project": "device/lenovo/sm8475-common",
     "patch": "0012-asphalt-recovery-adsp-typec-init.patch",
     "base_commit": "672e1ed4b6701aba913ad2d158ee26338f92bc3c"
+  },
+  {
+    "project": "vendor/lineage",
+    "patch": "0013-lineage-native-ethernet-settings-flag.patch",
+    "base_commit": "b3d63c6da0df32d283ce339b48f8fd5bacce6660"
+  },
+  {
+    "project": "packages/apps/Settings",
+    "patch": "0014-settings-populate-native-ethernet-details.patch",
+    "base_commit": "beaa8aa6323be765ad9369ec91ad3604cc65b58a"
+  },
+  {
+    "project": "packages/apps/Settings",
+    "patch": "0015-settings-ethernet-main-thread-and-initial-state.patch",
+    "base_commit": "beaa8aa6323be765ad9369ec91ad3604cc65b58a"
+  },
+  {
+    "project": "packages/apps/Settings",
+    "patch": "0016-settings-dual-network-controls.patch",
+    "base_commit": "beaa8aa6323be765ad9369ec91ad3604cc65b58a"
+  },
+  {
+    "project": "packages/modules/Connectivity",
+    "patch": "0017-connectivity-dual-network-policy.patch",
+    "base_commit": "7c04d866538e6f689823b769fb5c1e614ca0e295"
+  },
+  {
+    "patch": "0018-settings-simple-outlet-and-secondary-wifi-status.patch",
+    "project": "packages/apps/Settings",
+    "base_commit": "beaa8aa6323be765ad9369ec91ad3604cc65b58a"
   }
 ]

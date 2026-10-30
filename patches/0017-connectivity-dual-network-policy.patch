@@ -1,0 +1,562 @@
+--- a/service/src/com/android/server/ConnectivityService.java
++++ b/service/src/com/android/server/ConnectivityService.java
+@@ -431,6 +431,7 @@
+ import com.android.server.connectivity.NetworkOffer;
+ import com.android.server.connectivity.NetworkPreferenceList;
+ import com.android.server.connectivity.NetworkRanker;
++import com.android.server.connectivity.Y700DualNetworkPolicy;
+ import com.android.server.connectivity.NetworkRequestStateStatsMetrics;
+ import com.android.server.connectivity.PermissionMonitor;
+ import com.android.server.connectivity.ProfileNetworkPreferenceInfo;
+@@ -1442,6 +1443,8 @@
+     private final DnsManager mDnsManager;
+     @VisibleForTesting
+     final NetworkRanker mNetworkRanker;
++    private final Y700DualNetworkPolicy mY700DualNetworkPolicy;
++    private static final int EVENT_Y700_DUAL_NETWORK_POLICY = 67;
+ 
+     private boolean mSystemReady;
+     private Intent mInitialBroadcast;
+@@ -2593,6 +2596,9 @@
+         mDefaultWifiRequest = createDefaultInternetRequestForTransport(
+                 NetworkCapabilities.TRANSPORT_WIFI, NetworkRequest.Type.BACKGROUND_REQUEST);
+ 
++        mY700EthernetRequest = createDefaultInternetRequestForTransport(
++                NetworkCapabilities.TRANSPORT_ETHERNET, NetworkRequest.Type.BACKGROUND_REQUEST);
++
+         mDefaultVehicleRequest = createAlwaysOnRequestForCapability(
+                 NetworkCapabilities.NET_CAPABILITY_VEHICLE_INTERNAL,
+                 NetworkRequest.Type.BACKGROUND_REQUEST);
+@@ -2813,7 +2819,9 @@
+         mMultinetworkPolicyTracker = mDeps.makeMultinetworkPolicyTracker(
+                 mContext, mHandler, () -> updateAvoidBadWifi());
+         mNetworkRanker =
+-                new NetworkRanker(new NetworkRanker.Configuration(activelyPreferBadWifi()));
++                new NetworkRanker(new NetworkRanker.Configuration(activelyPreferBadWifi(),
++                        Y700DualNetworkPolicy.preferredTransport(mContext)));
++        mY700DualNetworkPolicy = new Y700DualNetworkPolicy(mContext);
+ 
+         mMultinetworkPolicyTracker.start();
+ 
+@@ -3009,8 +3017,11 @@
+     private void handleConfigureAlwaysOnNetworks() {
+         handleAlwaysOnNetworkRequest(mDefaultMobileDataRequest,
+                 ConnectivitySettingsManager.MOBILE_DATA_ALWAYS_ON, true /* defaultValue */);
+-        handleAlwaysOnNetworkRequest(mDefaultWifiRequest,
+-                ConnectivitySettingsManager.WIFI_ALWAYS_REQUESTED, false /* defaultValue */);
++        final boolean keepBoth = Y700DualNetworkPolicy.keepBoth(mContext);
++        final boolean wifiAlwaysRequested = Settings.Global.getInt(mContext.getContentResolver(),
++                ConnectivitySettingsManager.WIFI_ALWAYS_REQUESTED, 0) != 0;
++        handleAlwaysOnNetworkRequest(mDefaultWifiRequest, keepBoth || wifiAlwaysRequested);
++        handleAlwaysOnNetworkRequest(mY700EthernetRequest, keepBoth);
+         final boolean vehicleAlwaysRequested = mResources.get().getBoolean(
+                 R.bool.config_vehicleInternalNetworkAlwaysRequested);
+         handleAlwaysOnNetworkRequest(mDefaultVehicleRequest, vehicleAlwaysRequested);
+@@ -3019,6 +3030,12 @@
+     // Note that registering observer for setting do not get initial callback when registering,
+     // callers must fetch the initial value of the setting themselves if needed.
+     private void registerSettingsCallbacks() {
++        if (Y700DualNetworkPolicy.supported()) {
++            mSettingsObserver.observe(Settings.Global.getUriFor(Y700DualNetworkPolicy.MODE),
++                    EVENT_Y700_DUAL_NETWORK_POLICY);
++            mSettingsObserver.observe(Settings.Global.getUriFor(Y700DualNetworkPolicy.TARGETS),
++                    EVENT_Y700_DUAL_NETWORK_POLICY);
++        }
+         // Watch for global HTTP proxy changes.
+         mSettingsObserver.observe(
+                 Settings.Global.getUriFor(Settings.Global.HTTP_PROXY),
+@@ -7740,7 +7757,8 @@
+         for (final NetworkOfferInfo noi : offersToUpdate) {
+             updateOfferScore(noi.offer);
+         }
+-        mNetworkRanker.setConfiguration(new NetworkRanker.Configuration(activelyPreferBadWifi()));
++        mNetworkRanker.setConfiguration(new NetworkRanker.Configuration(activelyPreferBadWifi(),
++                        Y700DualNetworkPolicy.preferredTransport(mContext)));
+         rematchAllNetworksAndRequests();
+     }
+ 
+@@ -8070,6 +8088,14 @@
+                 }
+                 case EVENT_INITIAL_EVALUATION_TIMEOUT: {
+                     handleInitialEvaluationTimeout((Network) msg.obj);
++                    break;
++                }
++                case EVENT_Y700_DUAL_NETWORK_POLICY: {
++                    mNetworkRanker.setConfiguration(new NetworkRanker.Configuration(
++                            activelyPreferBadWifi(),
++                            Y700DualNetworkPolicy.preferredTransport(mContext)));
++                    handleConfigureAlwaysOnNetworks();
++                    rematchAllNetworksAndRequests();
+                     break;
+                 }
+                 case EVENT_CONFIGURE_ALWAYS_ON_NETWORKS: {
+@@ -10672,6 +10698,7 @@
+     // Request used to optionally keep wifi data active even when higher
+     // priority networks like ethernet are active.
+     private final NetworkRequest mDefaultWifiRequest;
++    private final NetworkRequest mY700EthernetRequest;
+ 
+     // Request used to optionally keep vehicle internal network always active
+     private final NetworkRequest mDefaultVehicleRequest;
+@@ -11124,6 +11151,7 @@
+         }
+ 
+         mKeepaliveTracker.handleCheckKeepalivesStillValid(networkAgent);
++        mY700DualNetworkPolicy.refresh(mNetworkAgentInfos, getDefaultNetwork());
+     }
+ 
+     private void updateIpAddressesAndDestroySockets(
+@@ -13521,9 +13549,11 @@
+         ensureRunningOnConnectivityServiceThread();
+         // TODO: This may be slow, and should be optimized.
+         final long start = SystemClock.elapsedRealtime();
++        mY700DualNetworkPolicy.beforeRematch(mNetworkAgentInfos);
+         final NetworkReassignment changes = computeNetworkReassignment(networkRequests);
+         final long computed = SystemClock.elapsedRealtime();
+         applyNetworkReassignment(changes, start);
++        mY700DualNetworkPolicy.refresh(mNetworkAgentInfos, getDefaultNetwork());
+         final long applied = SystemClock.elapsedRealtime();
+         issueNetworkNeeds();
+         final long end = SystemClock.elapsedRealtime();
+--- a/service/src/com/android/server/connectivity/NetworkRanker.java
++++ b/service/src/com/android/server/connectivity/NetworkRanker.java
+@@ -61,10 +61,17 @@
+      */
+     public static final class Configuration {
+         private final boolean mActivelyPreferBadWifi;
++        private final int mPreferredTransport;
+ 
+         public Configuration(final boolean activelyPreferBadWifi) {
++            this(activelyPreferBadWifi, -1);
++        }
++        public Configuration(final boolean activelyPreferBadWifi, final int preferredTransport) {
+             this.mActivelyPreferBadWifi = activelyPreferBadWifi;
+-        }
++            this.mPreferredTransport = preferredTransport == TRANSPORT_WIFI
++                    || preferredTransport == TRANSPORT_ETHERNET ? preferredTransport : -1;
++        }
++        public int preferredTransport() { return mPreferredTransport; }
+ 
+         /**
+          * @see MultinetworkPolicyTracker#getActivelyPreferBadWifi()
+@@ -259,6 +266,17 @@
+         if (accepted.size() == 1) return accepted.get(0);
+         if (accepted.size() > 0 && rejected.size() > 0) candidates = new ArrayList<>(accepted);
+ 
++        // A manual global outlet is an explicit user choice. Validation still runs and is
++        // reported; it is never forged. VPNs/invincible networks above retain precedence.
++        final int preferredTransport = mConf.preferredTransport();
++        if (preferredTransport >= 0) {
++            partitionInto(candidates, nai -> nai.getCapsNoCopy().hasTransport(preferredTransport)
++                            && !nai.getScore().hasPolicy(POLICY_EXITING)
++                            && !nai.getScore().hasPolicy(POLICY_IS_DESTROYED), accepted, rejected);
++            if (accepted.size() == 1) return accepted.get(0);
++            if (accepted.size() > 0 && rejected.size() > 0) candidates = new ArrayList<>(accepted);
++        }
++
+         // Selected & Accept-unvalidated policy : if any network has both of these, then don't
+         // choose one that doesn't.
+         partitionInto(candidates, nai -> nai.getScore().hasPolicy(POLICY_EVER_USER_SELECTED)
+--- /dev/null
++++ b/service/src/com/android/server/connectivity/Y700DualNetworkPolicy.java
+@@ -0,0 +1,259 @@
++/* SPDX-License-Identifier: Apache-2.0 */
++package com.android.server.connectivity;
++
++import static android.net.NetworkCapabilities.TRANSPORT_ETHERNET;
++import static android.net.NetworkCapabilities.TRANSPORT_WIFI;
++import static android.system.OsConstants.NETLINK_ROUTE;
++
++import android.annotation.Nullable;
++import android.content.Context;
++import android.net.IpPrefix;
++import android.net.LinkAddress;
++import android.net.LinkProperties;
++import android.os.Build;
++import android.provider.Settings;
++import android.system.ErrnoException;
++import android.system.Os;
++import android.system.OsConstants;
++import android.util.Log;
++import com.android.net.module.util.netlink.NetlinkUtils;
++import java.io.FileDescriptor;
++import java.net.Inet4Address;
++import java.net.InetAddress;
++import java.net.NetworkInterface;
++import java.nio.ByteBuffer;
++import java.nio.ByteOrder;
++import java.util.ArrayList;
++import java.util.Collection;
++import java.util.LinkedHashSet;
++import java.util.List;
++import java.util.Set;
++import org.json.JSONObject;
++import org.json.JSONArray;
++
++/** Runs only on the ConnectivityService thread; leaves VPNs, explicit bindings and netd rules alone. */
++public final class Y700DualNetworkPolicy {
++    public static final String MODE = "y700_dual_network_mode";
++    public static final String TARGETS = "y700_dual_network_ethernet_hosts";
++    public static final String STATUS = "y700_dual_network_status";
++    private static final String TAG = "Y700DualNetwork";
++    private final Context mContext;
++    private final Set<Y700RouteRule> mInstalled = new LinkedHashSet<>();
++    private boolean mCleaned;
++    private String mLastStatus = "";
++
++    public Y700DualNetworkPolicy(Context context) { mContext = context; }
++    public static boolean supported() { return "asphalt".equals(Build.DEVICE); }
++    public static String mode(Context context) {
++        if (!supported()) return "auto";
++        String mode = Settings.Global.getString(context.getContentResolver(), MODE);
++        return "wifi".equals(mode) || "ethernet".equals(mode) ? mode : "auto";
++    }
++    public static int preferredTransport(Context context) {
++        String mode = mode(context);
++        return "wifi".equals(mode) ? TRANSPORT_WIFI
++                : "ethernet".equals(mode) ? TRANSPORT_ETHERNET : -1;
++    }
++    public static boolean keepBoth(Context context) {
++        // Dual-link operation is independent of outlet choice. Do not recycle the standby
++        // connection in automatic mode; radios are still controlled by the existing switches.
++        return supported();
++    }
++    private static List<String> targets(Context context) {
++        String value = Settings.Global.getString(context.getContentResolver(), TARGETS);
++        List<String> result = new ArrayList<>();
++        if (value == null || value.length() > 1024) return result;
++        for (String item : value.split("[\\s,;]+")) {
++            if (!item.isEmpty() && Y700RouteRule.isDeviceAddress(item) && !result.contains(item)) {
++                result.add(item);
++                if (result.size() > 32) return new ArrayList<>();
++            }
++        }
++        return result;
++    }
++    private static boolean connected(NetworkAgentInfo n) {
++        return n.isCreated() && !n.isDestroyed() && n.networkInfo.isConnected();
++    }
++    private static boolean vpnPresent(Collection<NetworkAgentInfo> networks) {
++        for (NetworkAgentInfo n : networks) if (connected(n) && n.isVPN()) return true;
++        return false;
++    }
++    // Called before changing any defaults, so a newly connected VPN never inherits our exceptions.
++    public void beforeRematch(Collection<NetworkAgentInfo> networks) {
++        if (!supported() || !vpnPresent(networks) || mInstalled.isEmpty()) return;
++        try { applyRules(new LinkedHashSet<>()); }
++        catch (Exception e) { Log.e(TAG, "Unable to withdraw device exceptions for VPN", e); }
++    }
++    private static int table(NetworkAgentInfo n) throws Exception {
++        String name = n.linkProperties.getInterfaceName();
++        if (name == null) throw new IllegalStateException("No network interface");
++        NetworkInterface nic = NetworkInterface.getByName(name);
++        if (nic == null || nic.getIndex() <= 0) throw new IllegalStateException("No interface index");
++        // Exact netd RouteController::ROUTE_TABLE_OFFSET_FROM_INDEX, no custom routes required.
++        return 1000 + nic.getIndex();
++    }
++    private static boolean isOwnAddress(InetAddress address, @Nullable NetworkAgentInfo n) {
++        if (n == null) return false;
++        for (LinkAddress a : n.linkProperties.getLinkAddresses()) {
++            if (address.equals(a.getAddress())) return true;
++        }
++        return false;
++    }
++    private static boolean onLink(InetAddress address, NetworkAgentInfo n) {
++        for (LinkAddress a : n.linkProperties.getLinkAddresses()) {
++            if (!(a.getAddress() instanceof Inet4Address)) continue;
++            IpPrefix prefix = new IpPrefix(a.getAddress(), a.getPrefixLength());
++            if (!prefix.contains(address)) continue;
++            if (a.getPrefixLength() >= 31) return true;
++            byte[] network = prefix.getRawAddress(), host = address.getAddress();
++            boolean networkAddress = true, broadcast = true;
++            for (int bit = a.getPrefixLength(); bit < 32; bit++) {
++                int mask = 1 << (7 - bit % 8);
++                if ((host[bit / 8] & mask) != 0) networkAddress = false;
++                else broadcast = false;
++            }
++            return !networkAddress && !broadcast;
++        }
++        return false;
++    }
++    private static String addresses(@Nullable NetworkAgentInfo n) {
++        if (n == null) return "";
++        List<String> values = new ArrayList<>();
++        for (LinkAddress a : n.linkProperties.getLinkAddresses()) {
++            if (a.getAddress() instanceof Inet4Address) values.add(a.toString());
++        }
++        return String.join(", ", values);
++    }
++    private static String transport(@Nullable NetworkAgentInfo n) {
++        if (n == null) return "none";
++        if (n.isVPN()) return "vpn";
++        if (n.networkCapabilities.hasTransport(TRANSPORT_WIFI)) return "wifi";
++        if (n.networkCapabilities.hasTransport(TRANSPORT_ETHERNET)) return "ethernet";
++        return "other";
++    }
++    public void refresh(Collection<NetworkAgentInfo> networks,
++            @Nullable NetworkAgentInfo defaultNetwork) {
++        if (!supported()) return;
++        NetworkAgentInfo wifi = null, ethernet = null;
++        for (NetworkAgentInfo n : networks) {
++            if (!connected(n) || n.isVPN()) continue;
++            if (n.networkCapabilities.hasTransport(TRANSPORT_WIFI)
++                    && (wifi == null || n == defaultNetwork)) wifi = n;
++            if (n.networkCapabilities.hasTransport(TRANSPORT_ETHERNET)
++                    && (ethernet == null || n == defaultNetwork)) ethernet = n;
++        }
++        List<String> requested = targets(mContext);
++        boolean vpn = vpnPresent(networks);
++        Set<Y700RouteRule> desired = new LinkedHashSet<>();
++        int active = 0;
++        String error = "";
++        try {
++            if (!mCleaned) { cleanupOwnedRules(); mCleaned = true; }
++            if (!vpn && ethernet != null && !requested.isEmpty()) {
++                Set<Integer> marks = new LinkedHashSet<>(); marks.add(0);
++                marks.add(ethernet.network.netId);
++                if (wifi != null) marks.add(wifi.network.netId);
++                int ethernetTable = table(ethernet);
++                Set<String> activeHosts = new LinkedHashSet<>();
++                for (String host : requested) {
++                    InetAddress address = InetAddress.getByName(host); // Strict numeric IPv4 above.
++                    if (!onLink(address, ethernet) || isOwnAddress(address, ethernet)
++                            || isOwnAddress(address, wifi)) continue;
++                    for (int mark : marks) desired.add(new Y700RouteRule(host, ethernetTable, mark, 0));
++                    active++; activeHosts.add(host);
++                }
++                // Preserve DNS over the chosen Internet network even when its DNS/router has
++                // the same address as a wired device. Applies to unmarked native sockets too.
++                if (active > 0 && defaultNetwork != null && !defaultNetwork.isVPN()) {
++                    int internetTable = table(defaultNetwork);
++                    for (InetAddress dns : defaultNetwork.linkProperties.getDnsServers()) {
++                        String host = dns.getHostAddress();
++                        if (!(dns instanceof Inet4Address) || !activeHosts.contains(host)) continue;
++                        for (int mark : marks) {
++                            desired.add(new Y700RouteRule(host, internetTable, mark, 6));
++                            desired.add(new Y700RouteRule(host, internetTable, mark, 17));
++                        }
++                    }
++                }
++            }
++            applyRules(desired);
++        } catch (Exception e) {
++            active = 0; error = "route_apply_failed";
++            Log.e(TAG, "Keeping standard network routing after device-rule failure", e);
++        }
++        try {
++            JSONArray dns = new JSONArray();
++            if (defaultNetwork != null) {
++                for (InetAddress server : defaultNetwork.linkProperties.getDnsServers()) {
++                    dns.put(server.getHostAddress());
++                }
++            }
++            String status = new JSONObject().put("dns", dns)
++                    .put("validated", defaultNetwork != null && defaultNetwork.networkCapabilities
++                            .hasCapability(android.net.NetworkCapabilities.NET_CAPABILITY_VALIDATED))
++                    .put("mode", mode(mContext))
++                    .put("default", transport(defaultNetwork)).put("wifi", addresses(wifi))
++                    .put("ethernet", addresses(ethernet)).put("requested", requested.size())
++                    .put("active", active).put("pending", requested.size() - active)
++                    .put("vpn_paused", vpn && !requested.isEmpty()).put("error", error).toString();
++            if (!status.equals(mLastStatus)) {
++                Settings.Global.putString(mContext.getContentResolver(), STATUS, status);
++                mLastStatus = status;
++            }
++        } catch (Exception e) { Log.e(TAG, "Unable to publish network policy state", e); }
++    }
++    private static void send(byte[] message) throws ErrnoException {
++        NetlinkUtils.sendOneShotKernelMessage(NETLINK_ROUTE, message);
++    }
++    private void applyRules(Set<Y700RouteRule> desired) throws ErrnoException {
++        // Retire old rules first when interfaces/defaults change. A failure leaves normal Android
++        // routing in place; no stale rule may point at an interface index reused by another NIC.
++        for (Y700RouteRule old : new ArrayList<>(mInstalled)) {
++            if (desired.contains(old)) continue;
++            try { send(old.message(false)); }
++            catch (ErrnoException e) { if (e.errno != OsConstants.ENOENT) throw e; }
++            mInstalled.remove(old);
++        }
++        List<Y700RouteRule> added = new ArrayList<>();
++        try {
++            for (Y700RouteRule rule : desired) {
++                if (mInstalled.contains(rule)) continue;
++                send(rule.message(true)); mInstalled.add(rule); added.add(rule);
++            }
++        } catch (ErrnoException e) {
++            for (Y700RouteRule rule : added) {
++                try { send(rule.message(false)); mInstalled.remove(rule); }
++                catch (ErrnoException cleanupError) { Log.e(TAG, "Rule rollback failed", cleanupError); }
++            }
++            throw e;
++        }
++    }
++    private static void cleanupOwnedRules() throws Exception {
++        FileDescriptor fd = NetlinkUtils.netlinkSocketForProto(NETLINK_ROUTE, 1024 * 1024);
++        List<byte[]> deletes = new ArrayList<>();
++        try {
++            NetlinkUtils.connectToKernel(fd);
++            byte[] request = Y700RouteRule.dumpRequest();
++            NetlinkUtils.sendMessage(fd, request, 0, request.length, 1000);
++            boolean done = false;
++            for (int count = 0; count < 128 && !done; count++) {
++                ByteBuffer b = NetlinkUtils.recvMessage(fd, 65536, 1000)
++                        .order(ByteOrder.nativeOrder());
++                deletes.addAll(Y700RouteRule.ownedDeletes(b));
++                for (int at = b.position(); at + 16 <= b.limit();) {
++                    int len = b.getInt(at);
++                    if (len < 16 || at + len > b.limit()) throw new IllegalStateException("Bad rule dump");
++                    int type = Short.toUnsignedInt(b.getShort(at + 4));
++                    if (type == 3) done = true;
++                    if (type == 2) throw new IllegalStateException("Rule dump rejected");
++                    at += (len + 3) & ~3;
++                }
++            }
++            if (!done) throw new IllegalStateException("Incomplete rule dump");
++        } finally { Os.close(fd); }
++        for (byte[] delete : deletes) {
++            try { send(delete); }
++            catch (ErrnoException e) { if (e.errno != OsConstants.ENOENT) throw e; }
++        }
++    }
++}
+--- /dev/null
++++ b/service/src/com/android/server/connectivity/Y700RouteRule.java
+@@ -0,0 +1,138 @@
++/* SPDX-License-Identifier: Apache-2.0 */
++package com.android.server.connectivity;
++
++import java.net.Inet4Address;
++import java.net.InetAddress;
++import java.nio.ByteBuffer;
++import java.nio.ByteOrder;
++import java.util.ArrayList;
++import java.util.Arrays;
++import java.util.List;
++import java.util.Objects;
++
++/** Scoped IPv4 policy rules. No shell commands and no changes to netd-owned rules/tables. */
++public final class Y700RouteRule {
++    public static final int DNS_PRIORITY = 18040;
++    public static final int DEVICE_PRIORITY = 18050;
++    public static final int OWNER_PROTOCOL = 242;
++    // netd Fwmark: 16-bit netId, followed by explicitlySelected. Explicit app bindings win.
++    public static final int MARK_MASK = 0x1ffff;
++    public final String destination;
++    public final int table;
++    public final int mark;
++    public final int ipProtocol;
++
++    public Y700RouteRule(String destination, int table, int mark, int ipProtocol) {
++        if (table <= 1000 || table >= 1000000000 || mark < 0 || mark > 65535
++                || (ipProtocol != 0 && ipProtocol != 6 && ipProtocol != 17)) {
++            throw new IllegalArgumentException("Invalid policy rule");
++        }
++        if (!isDeviceAddress(destination)) {
++            throw new IllegalArgumentException("Invalid device IPv4");
++        }
++        this.destination = destination;
++        this.table = table;
++        this.mark = mark;
++        this.ipProtocol = ipProtocol;
++    }
++
++    public static boolean isDeviceAddress(String value) {
++        if (value == null || !value.matches("[0-9]{1,3}(\\.[0-9]{1,3}){3}")) return false;
++        String[] parts = value.split("\\.");
++        int first = Integer.parseInt(parts[0]);
++        for (String p : parts) {
++            if (Integer.parseInt(p) > 255 || (p.length() > 1 && p.startsWith("0"))) return false;
++        }
++        return first > 0 && first < 224 && first != 127
++                && !value.equals("255.255.255.255");
++    }
++
++    private static void attr(ByteBuffer b, int type, byte[] data) {
++        b.putShort((short) (4 + data.length)).putShort((short) type).put(data);
++        while ((b.position() & 3) != 0) b.put((byte) 0);
++    }
++
++    private static byte[] integer(int n) {
++        return ByteBuffer.allocate(4).order(ByteOrder.nativeOrder()).putInt(n).array();
++    }
++
++    public byte[] message(boolean add) {
++        ByteBuffer b = ByteBuffer.allocate(128).order(ByteOrder.nativeOrder());
++        b.putInt(0).putShort((short) (add ? 32 : 33)) // RTM_NEWRULE / RTM_DELRULE
++                .putShort((short) (add ? 0x605 : 5)).putInt(1).putInt(0);
++        b.put((byte) 2).put((byte) 32)
++                .put((byte) 0).put((byte) 0).putInt(0).putInt(0);
++        // fib_rule_hdr's action is a byte, not an endian-dependent integer.
++        b.put(23, (byte) 1); // FR_ACT_TO_TBL
++        b.put(20, (byte) 0); b.put(21, (byte) 0); b.put(22, (byte) 0);
++        if (destination != null) {
++            String[] p = destination.split("\\.");
++            attr(b, 1, new byte[] {(byte) Integer.parseInt(p[0]),
++                    (byte) Integer.parseInt(p[1]), (byte) Integer.parseInt(p[2]),
++                    (byte) Integer.parseInt(p[3])});
++        }
++        attr(b, 3, new byte[] {'l', 'o', 0}); // Local output only; never alter tethered traffic.
++        attr(b, 6, integer(ipProtocol != 0 ? DNS_PRIORITY : DEVICE_PRIORITY));
++        attr(b, 10, integer(mark));
++        attr(b, 15, integer(table));
++        attr(b, 16, integer(MARK_MASK));
++        attr(b, 21, new byte[] {(byte) OWNER_PROTOCOL});
++        if (ipProtocol != 0) {
++            attr(b, 22, new byte[] {(byte) ipProtocol});
++            attr(b, 24, ByteBuffer.allocate(4).order(ByteOrder.nativeOrder())
++                    .putShort((short) 53).putShort((short) 53).array());
++        }
++        b.putInt(0, b.position());
++        return Arrays.copyOf(b.array(), b.position());
++    }
++
++    public static byte[] dumpRequest() {
++        ByteBuffer b = ByteBuffer.allocate(28).order(ByteOrder.nativeOrder());
++        b.putInt(28).putShort((short) 34).putShort((short) 0x301).putInt(1).putInt(0);
++        b.put((byte) 2);
++        return b.array();
++    }
++
++    /** Return deletes only for our exact family, priorities, protocol and mark mask. */
++    public static List<byte[]> ownedDeletes(ByteBuffer input) {
++        List<byte[]> result = new ArrayList<>();
++        ByteBuffer b = input.duplicate().order(ByteOrder.nativeOrder());
++        while (b.remaining() >= 16) {
++            int start = b.position();
++            int length = b.getInt(start);
++            if (length < 16 || length > b.remaining()) break;
++            int type = Short.toUnsignedInt(b.getShort(start + 4));
++            if (type == 32 && length >= 28 && b.get(start + 16) == 2) {
++                int priority = -1, protocol = -1, mask = -1;
++                for (int at = start + 28; at + 4 <= start + length;) {
++                    int n = Short.toUnsignedInt(b.getShort(at));
++                    int kind = Short.toUnsignedInt(b.getShort(at + 2)) & 0x3fff;
++                    if (n < 4 || at + n > start + length) break;
++                    if (kind == 6 && n == 8) priority = b.getInt(at + 4);
++                    if (kind == 16 && n == 8) mask = b.getInt(at + 4);
++                    if (kind == 21 && n == 5) protocol = Byte.toUnsignedInt(b.get(at + 4));
++                    at += (n + 3) & ~3;
++                }
++                if ((priority == DNS_PRIORITY || priority == DEVICE_PRIORITY)
++                        && protocol == OWNER_PROTOCOL && mask == MARK_MASK) {
++                    byte[] raw = new byte[length];
++                    ByteBuffer copy = b.duplicate(); copy.position(start); copy.get(raw);
++                    ByteBuffer edit = ByteBuffer.wrap(raw).order(ByteOrder.nativeOrder());
++                    edit.putShort(4, (short) 33).putShort(6, (short) 5)
++                            .putInt(8, 1).putInt(12, 0);
++                    result.add(raw);
++                }
++            }
++            b.position(start + ((length + 3) & ~3));
++        }
++        return result;
++    }
++
++    @Override public boolean equals(Object o) {
++        if (!(o instanceof Y700RouteRule)) return false;
++        Y700RouteRule r = (Y700RouteRule) o;
++        return table == r.table && mark == r.mark && ipProtocol == r.ipProtocol
++                && Objects.equals(destination, r.destination);
++    }
++    @Override public int hashCode() { return Objects.hash(destination, table, mark, ipProtocol); }
++}

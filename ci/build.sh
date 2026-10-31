@@ -75,7 +75,8 @@ python3 "$bundle/ci/check-preservation.py" --source "$PWD" --candidate "$dest"
 python3 "$bundle/ci/validate-native.py" --source "$PWD" --candidate "$dest" --pipeline-lock-fd 9
 python3 "$bundle/ci/check-kernel-preservation.py" --source "$PWD" --candidate "$dest"
 python3 "$bundle/ci/check-ucsi-typec3.py" --source "$PWD" --candidate "$dest" --target-files "$out/obj/PACKAGING/target_files_intermediates/lineage_asphalt-target_files" --previous-target-files /home/builder/y700-usbfix-20261028/signed/target-files
-python3 "$bundle/ci/check-recovery-adsp.py" --source "$PWD" --candidate "$dest" --target-files "$out/obj/PACKAGING/target_files_intermediates/lineage_asphalt-target_files" --previous-target-files /home/builder/y700-ucsi-typec3-20261028/signed/target-files
+recovery_baseline=$(python3 "$bundle/ci/review-recovery-baseline.py" --source "$PWD" --target-files "$out/obj/PACKAGING/target_files_intermediates/lineage_asphalt-target_files" --previous-target-files /home/builder/y700-ucsi-typec3-20261028/signed/target-files --output "$dest/reviewed-recovery-baseline")
+python3 "$bundle/ci/check-recovery-adsp.py" --source "$PWD" --candidate "$dest" --target-files "$out/obj/PACKAGING/target_files_intermediates/lineage_asphalt-target_files" --previous-target-files "$recovery_baseline"
 python3 "$bundle/ci/check-dual-network.py" --source "$PWD" --candidate "$dest" --target-files "$out/obj/PACKAGING/target_files_intermediates/lineage_asphalt-target_files"
 sha256sum "$dest/"*.zip > "$dest/SHA256SUMS"
 # No release promotion: private signing/migration and device acceptance remain mandatory.

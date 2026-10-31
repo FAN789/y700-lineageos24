@@ -78,6 +78,8 @@ python3 "$bundle/ci/check-ucsi-typec3.py" --source "$PWD" --candidate "$dest" --
 recovery_baseline=$(python3 "$bundle/ci/review-recovery-baseline.py" --source "$PWD" --target-files "$out/obj/PACKAGING/target_files_intermediates/lineage_asphalt-target_files" --previous-target-files /home/builder/y700-ucsi-typec3-20261028/signed/target-files --output "$dest/reviewed-recovery-baseline")
 python3 "$bundle/ci/check-recovery-adsp.py" --source "$PWD" --candidate "$dest" --target-files "$out/obj/PACKAGING/target_files_intermediates/lineage_asphalt-target_files" --previous-target-files "$recovery_baseline"
 python3 "$bundle/ci/check-dual-network.py" --source "$PWD" --candidate "$dest" --target-files "$out/obj/PACKAGING/target_files_intermediates/lineage_asphalt-target_files"
+# Package the verified directory, never a potentially stale ZIP left by an older target.
+python3 "$bundle/ci/package-current-target.py" --source "$PWD" --target-files "$out/obj/PACKAGING/target_files_intermediates/lineage_asphalt-target_files" --native-ota "$dest/$(basename "${zips[0]}")" --output "$dest/unsigned-target_files.zip" --report "$dest/packaging-input-audit.json"
 sha256sum "$dest/"*.zip > "$dest/SHA256SUMS"
 # No release promotion: private signing/migration and device acceptance remain mandatory.
 state candidate-needs-acceptance

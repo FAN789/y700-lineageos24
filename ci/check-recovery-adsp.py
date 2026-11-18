@@ -77,7 +77,8 @@ if a.candidate:
  assert len(modules)==711
  assert (t/'VENDOR/etc/init/hw/init.target.rc').read_bytes()==(old/'VENDOR/etc/init/hw/init.target.rc').read_bytes()
  kernel=json.loads((a.candidate/'kernel-preservation-check.json').read_text())
- assert kernel['actual_ota_kernel_sha256']=='d49e3fe5d2203523e9b20523b500ea69e41c8de72f7ceeff5a90d283e0d0d16c'
- result.update(passed=True,actual_recovery_policy_verified=True,normal_policy_files_unchanged=normal,all_711_module_paths_and_bytes_unchanged=True,core_kernel_unchanged=True,unrelated_init_permissions_unchanged=True,no_new_permissive_domain=True,device_flash_authorized=False)
+ # Use the core kernel verified on the Android-only 1795001232 release.
+ assert kernel['actual_ota_kernel_sha256']=='70f4130aa547c18c1279744385da65f38cf06f8a6113a5a534fb17520c696d11','Core kernel differs from the reviewed Android-only baseline'
+ result.update(passed=True,actual_recovery_policy_verified=True,normal_policy_files_unchanged=normal,all_711_module_paths_and_bytes_unchanged=True,core_kernel_matches_reviewed_android_only=True,unrelated_init_permissions_unchanged=True,no_new_permissive_domain=True,device_flash_authorized=False)
  (a.candidate/'recovery-adsp-check.json').write_text(json.dumps(result,indent=2))
 print(json.dumps(result))

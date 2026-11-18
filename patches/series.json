@@ -15,11 +15,6 @@
     "base_commit": "beaa8aa6323be765ad9369ec91ad3604cc65b58a"
   },
   {
-    "project": "kernel/lenovo/sm8475",
-    "patch": "0005-asphalt-linux-namespace-support.patch",
-    "base_commit": "9b7833ce5db1a9914dc5e5e06d1a0cccfdd5c73b"
-  },
-  {
     "project": "frameworks/av",
     "patch": "0007-codec2-validate-hidl-configurable.patch",
     "base_commit": "937eb9047ec2f88620f1f6a4d9e407f6c869d91a"

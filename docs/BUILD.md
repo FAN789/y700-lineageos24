@@ -53,4 +53,4 @@ m -j12 bacon
 
 Releases 附设备/common、完整内核、设备树、模块、Health、Settings 和 Soong 的准确修改后源码快照；对应 Git tree 和 SHA256 见 manifests/source-snapshots.json。快照采用 git archive，只含受版本管理的源码与明确列出的修改，没有编译机工作目录或个人文件。
 
-快照已包含补丁，解压到对应目录后不要再重复应用。其他 AOSP/Lineage 项目及工具链由完整固定 manifest 获取。内核实际配置为 manifests/kernel.config；内核源码快照保留内核自身构建脚本、COPYING 及 LICENSES。
+快照已包含补丁，解压到对应目录后不要再重复应用。其他 AOSP/Lineage 项目及工具链由完整固定 manifest 获取。当前 Android 固件的参考配置见 manifests/kernel.config。旧 Release 的内核配置以对应发布版本为准。内核源码快照保留内核自身构建脚本、COPYING 及 LICENSES。

@@ -73,5 +73,10 @@
     "patch": "0018-settings-simple-outlet-and-secondary-wifi-status.patch",
     "project": "packages/apps/Settings",
     "base_commit": "beaa8aa6323be765ad9369ec91ad3604cc65b58a"
+  },
+  {
+    "project": "device/lenovo/asphalt",
+    "patch": "0023-asphalt-default-china-locale-timezone.patch",
+    "base_commit": "fbfe68c06a1342573306d270b02a9eed93d49095"
   }
 ]

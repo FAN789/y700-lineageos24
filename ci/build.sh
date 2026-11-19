@@ -63,6 +63,12 @@ if grep -Fq 'Build sandboxing disabled due to nsjail error.' "$base/logs/$run.lo
 fi
 state checking
 out=out/target/product/asphalt
+system_props="$out/obj/PACKAGING/target_files_intermediates/lineage_asphalt-target_files/SYSTEM/build.prop"
+if ! grep -Eq '^ro\.product\.locale=zh[-_]CN$' "$system_props" ||
+    ! grep -Fxq 'persist.sys.timezone=Asia/Shanghai' "$system_props"; then
+  echo 'Y700 factory locale or time zone missing from the packaged system properties.'
+  exit 1
+fi
 ota=$(python3 "$bundle/ci/select-ota.py" --product-out "$out" --newer-than "$base/logs/$run-resolved.xml")
 zips=("$ota")
 [ "${#zips[@]}" = 1 ] || { echo 'Expected exactly one new OTA'; exit 1; }

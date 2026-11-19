@@ -1,0 +1,12 @@
+diff --git a/lineage_asphalt.mk b/lineage_asphalt.mk
+index a44efe0f0c2deef1921014da78adcf6fc44d30c2..d7e677dade06cf61374e54e2a8cb01e1dfdfbe14 100644
+--- a/lineage_asphalt.mk
++++ b/lineage_asphalt.mk
+@@ -7,3 +7,7 @@
++# Factory defaults for Y700. Keep the other inherited languages available.
++PRODUCT_LOCALES += zh_CN
++PRODUCT_SYSTEM_PROPERTIES += persist.sys.timezone?=Asia/Shanghai
++
+ # Inherit from products. Most specific first.
+ $(call inherit-product, $(SRC_TARGET_DIR)/product/core_64_bit.mk)
+ $(call inherit-product, $(SRC_TARGET_DIR)/product/full_base.mk)
